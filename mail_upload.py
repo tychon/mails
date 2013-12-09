@@ -88,8 +88,9 @@ response = requests.put(config.couchdb_url+hexdigest
 
 print response.status_code
 print response.text
+respjson = json.loads(response.text)
 
-if not response.status_code is 200:
+if not respjson.get('ok', False):
   log.error("Could not upload mail\n  hash: %s,\n  CouchDB response code %d, text (multiline): %s\n  trying to save mail" % (hexdigest, response.status_code, response.text))
   save_mail()
   logging.shutdown()
