@@ -77,6 +77,7 @@ data = {
 , 'from': message.get('From', None)
 , 'to': message.get('To', None)
 , 'date': message.get('Date', None)
+, 'subject': message.get('Subject', None)
 , 'data': mail
 }
 
@@ -98,5 +99,5 @@ if not respjson.get('ok', False):
 
 # everything is ok. exit.
 logging.shutdown()
-python.exit(0)
+sys.exit(0)
 

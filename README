@@ -34,6 +34,7 @@ from: string of senders
 to: string of receivers
 cc: string of ccs
 bc: string of bcs
+subject: string containing subject
 
 data: plain representation of the mail (including metadata and attachments)
 
