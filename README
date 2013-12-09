@@ -1,0 +1,39 @@
+
+not python 3
+
+### Scripts
+
+* forward script
+  Forward mails from postfix to upload script
+
+* upload
+  Parse and upload a given mail. (Extract metadata, maybe get keywords)
+  (needs python-requests)
+
+* search
+  Search for mail hashes by metadata (maybe even keywords)
+  Results in a list of hashes and metadata (one-liners) in a file
+  (as input to download or to look through by user).
+
+* download
+  Download mail / mails with a given hash into mbox file.
+
+* parse mboxes
+  Parse existing mailboxes, ask user give mails to upload script.
+
+### Document format
+
+doc_id: sha256 hash of whole mail as in 'data' field
+upload_date: date, when the mail was uploaded in YYYY-MM-DD hh:mm:ss
+            `date "+%Y-%M-%d %H:%m:%S"` i.e. 2013-12-08 11:12:42
+flag: signed, encrypted
+labels: list of unique label names
+
+date: date given in mail, in ascii time format
+from: string of senders
+to: string of receivers
+cc: string of ccs
+bc: string of bcs
+
+data: plain representation of the mail (including metadata and attachments)
+
