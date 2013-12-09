@@ -13,3 +13,6 @@ couchdb_auth = None
 # They will have a 21 chars file name: 10 chars beginning of hash, underscore, 10 chars hex randomness
 backupdir = '~/.mail_backup/'
 
+# File to write error log to
+errorlog = 'error.log'
+

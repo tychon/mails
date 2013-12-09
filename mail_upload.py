@@ -1,7 +1,7 @@
 
 # Reads a mail from stdin and saves it as a string.
 # Then the mail is parsed analyzed and uploaded to the CouchDB given in config.py
-# Writes log output to error.log
+# Writes log output to config.errorlog
 # Saves mail in case of failed upload to config.backupdir (see error log for more info)
 
 import sys
@@ -21,7 +21,7 @@ import config
 # Setup logging
 # For possible format strings see LogRecord attributes in logging module doc
 # You have to set the level to DEBUG to see any of the .info messages.
-logging.basicConfig(filename='error.log', format='%(asctime)s %(levelname)s: %(message)s')
+logging.basicConfig(filename=config.errorlog, format='%(asctime)s %(levelname)s: %(message)s')
 log = logging.getLogger()
 
 mail = sys.stdin.read()
