@@ -6,6 +6,7 @@
 
 import sys
 import logging
+import traceback
 import os
 import random
 import email.parser
@@ -25,6 +26,14 @@ import config
 logging.basicConfig(filename=config.errorlog, format='%(asctime)s %(levelname)s: %(message)s')
 log = logging.getLogger()
 
+def logexception(type, value, tb):
+  msg = "Exception, possible loss of data!\n %s" % ' '.join(traceback.format_exception(type, value, tb, limit=100))
+  log.critical(msg)
+  logging.shutdown()
+  sys.exit(1)
+sys.excepthook = logexception
+
+# Read mail from stdin
 mail = sys.stdin.read()
 if len(mail) is 0:
   log.error("Empty mail")
@@ -47,7 +56,7 @@ def save_mail():
   f.close()
   log.error("Written mail %s\n  to %s", hexdigest, filename)
 
-# parse mail from stdin
+# parse mail
 message = email.parser.Parser().parsestr(mail)
 
 #TODO test defects
@@ -83,6 +92,7 @@ data = {
 
 # UPLOAD
 # verify=False is for untrusted SSL certificates (you created on your own)
+#FIXME handle special characters in iso encoding right!
 response = requests.put(config.couchdb_url+hexdigest
     , auth=config.couchdb_auth
     , verify=False, data=json.dumps(data))

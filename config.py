@@ -14,5 +14,6 @@ couchdb_auth = None
 backupdir = '~/.mail_backup/'
 
 # File to write error log to
+# No expansion of '~' supported here!
 errorlog = 'error.log'
 
