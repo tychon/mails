@@ -12,6 +12,7 @@ import email.parser
 import email.message
 import hashlib
 import time
+import datetime
 import json
 import requests
 
@@ -30,7 +31,7 @@ if len(mail) is 0:
   logging.shutdown()
   sys.exit(1)
 
-logging.info("Mail received.") # not print, unless you set logging level to debug
+logging.info("Mail received.") # not printed, unless you set logging level to debug
 
 # hash mail for document id
 sha = hashlib.new('sha256')
@@ -49,18 +50,17 @@ def save_mail():
 # parse mail from stdin
 message = email.parser.Parser().parsestr(mail)
 
-#TODO test defects / empty mails?
+#TODO test defects
 #put defect mails into special document?
 print 'defects:', len(message.defects)
 for defect in message.defects:
   print defect
-
-print message.keys()
-
+#TODO test for missing fields
 
 # parse mail send time and convert it to UTC TODO?
-#sendtime = time.strptime(message.get('Date')[:-5], "%a, %d %b %Y %H:%M:%S")
-#sendtimestr = time.strftime("%Y-%m-%d %H:%M:%S", sendtime)
+sendtime = datetime.datetime.strptime(message.get('Date')[:-6], "%a, %d %b %Y %H:%M:%S")
+sendtime = sendtime + datetime.timedelta(hours=(-1 * int(message.get('Date')[-5:]) / 100))
+sendtimestr = datetime.datetime.strftime(sendtime, "%Y-%m-%d %H:%M:%S")
 
 # format current UTC time
 nowtimestr = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
@@ -76,12 +76,12 @@ data = {
 , 'keywords': []
 , 'from': message.get('From', None)
 , 'to': message.get('To', None)
-, 'date': message.get('Date', None)
+, 'date': sendtimestr
 , 'subject': message.get('Subject', None)
 , 'data': mail
 }
 
-# upload mail
+# UPLOAD
 # verify=False is for untrusted SSL certificates (you created on your own)
 response = requests.put(config.couchdb_url+hexdigest
     , auth=config.couchdb_auth
