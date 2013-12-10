@@ -39,3 +39,19 @@ subject: string containing subject
 original message as standalone attachment in named 'mail'
   with content-type: text/plain
 
+### Database Views
+
+  inbox
+
+All mails with labeled "unread".
+Functions: Map
+Key: date
+Value: flags
+
+  labels
+
+A list of all labels used anywhere.
+Functions: Map & Reduce
+Key: Null
+Value: List of all labels
+
