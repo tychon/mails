@@ -87,25 +87,39 @@ data = {
 , 'to': message.get('To', None)
 , 'date': sendtimestr
 , 'subject': message.get('Subject', None)
-, 'data': mail
 }
 
-# UPLOAD
+# UPLOAD document
 # verify=False is for untrusted SSL certificates (you created on your own)
-#FIXME handle special characters in iso encoding right!
 response = requests.put(config.couchdb_url+hexdigest
-    , auth=config.couchdb_auth
-    , verify=False, data=json.dumps(data))
+    , auth=config.couchdb_auth, verify=False, data=json.dumps(data))
 
+print response.url
 print response.status_code
 print response.text
 respjson = json.loads(response.text)
-
 if not respjson.get('ok', False):
-  log.error("Could not upload mail\n  hash: %s,\n  CouchDB response code %d, text (multiline): %s\n  trying to save mail" % (hexdigest, response.status_code, response.text))
+  log.error("Could not upload metadata\n  hash: %s,\n  CouchDB response code %d, text (multiline): %s  trying to save mail" % (hexdigest, response.status_code, response.text))
   save_mail()
   logging.shutdown()
   sys.exit(1)
+
+# UPLOAD original mail as attachment
+response = requests.put(config.couchdb_url+hexdigest+'/mail?rev='+respjson.get('rev')
+    , headers={'content-type':'text/plain'}
+    , auth=config.couchdb_auth, verify=False, data=mail)
+
+print response.url
+print response.status_code
+print response.text
+respjson = json.loads(response.text)
+if not respjson.get('ok', False):
+  log.error("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  hash: %s,\n  CouchDB response code %d, text (multiline): %s  trying to save mail" % (hexdigest, response.status_code, response.text))
+  save_mail()
+  logging.shutdown()
+  sys.exit(1)
+
+# Use ?attachments=true to GET attachments with documents base64 encoded in one request.
 
 # everything is ok. exit.
 logging.shutdown()

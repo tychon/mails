@@ -36,5 +36,6 @@ cc: string of ccs
 bc: string of bcs
 subject: string containing subject
 
-data: plain representation of the mail (including metadata and attachments)
+original message as standalone attachment in named 'mail'
+  with content-type: text/plain
 
