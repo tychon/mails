@@ -1,6 +1,8 @@
 
 # Reads a mail from stdin and saves it as a string.
 # Then the mail is parsed analyzed and uploaded to the CouchDB given in config.py
+# Give the command line arg "--override" to make this script override old an
+# mail with the same hash if it existed.
 # Writes log output to config.errorlog
 # Saves mail in case of failed upload to config.backupdir (see error log for more info)
 
@@ -13,10 +15,10 @@ import email.parser
 import email.message
 import hashlib
 import time
-import datetime
 import json
 import requests
 
+import common
 # Import information about couchdb 
 import config
 
@@ -35,7 +37,7 @@ sys.excepthook = logexception
 
 # Read mail from stdin
 mail = sys.stdin.read()
-if len(mail) is 0:
+if len(mail) == 0:
   log.error("Empty mail")
   logging.shutdown()
   sys.exit(1)
@@ -56,13 +58,17 @@ def save_mail():
   f.close()
   log.error("Written mail %s\n  to %s", hexdigest, filename)
 
-#TODO parse command line args
+# parse command line args
+override = False
+for arg in sys.argv:
+  if arg == "--override":
+    override = True
 
 # parse mail
 message = email.parser.Parser().parsestr(mail)
 
 # test defects and try to save defect mails
-if len(message.defects) is not 0:
+if len(message.defects) != 0:
   log.error("Parser signaled defect in mail %s:\n  %s\n  trying to save mail" % (hexdigest, str(message.defects)))
   save_mail()
   logging.shutdown()
@@ -78,9 +84,7 @@ or not message.get('Date', None) :
   sys.exit(1)
 
 # parse mail send time and convert it to UTC
-sendtime = datetime.datetime.strptime(message.get('Date')[:-6], "%a, %d %b %Y %H:%M:%S")
-sendtime = sendtime + datetime.timedelta(hours=(-1 * int(message.get('Date')[-5:]) / 100))
-sendtimestr = datetime.datetime.strftime(sendtime, "%Y-%m-%d %H:%M:%S")
+sendtimestr = common.convert_from_maildate(message.get('Date'))
 
 # format current UTC time
 nowtimestr = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
@@ -100,12 +104,24 @@ data = {
 , 'subject': message.get('Subject')
 }
 
+# Retrieve rev if override is enabled
+oldrevision = ''
+if override:
+  response = requests.head(config.couchdb_url+hexdigest
+      , auth=config.couchdb_auth, verify=False)
+  print 'HEAD', response.url
+  print response.status_code
+  print response.headers
+  oldrevision = '?rev='+json.loads(response.headers.get('etag', '""'))
+  if oldrevision != '': print "Overriding old mail!"
+  print
+
 # UPLOAD document
 # verify=False is for untrusted SSL certificates (you created on your own)
-response = requests.put(config.couchdb_url+hexdigest
+response = requests.put(config.couchdb_url+hexdigest+oldrevision
     , auth=config.couchdb_auth, verify=False, data=json.dumps(data))
 
-print response.url
+print 'PUT', response.url
 print response.status_code
 print response.text
 respjson = json.loads(response.text)
@@ -114,13 +130,14 @@ if not respjson.get('ok', False):
   save_mail()
   logging.shutdown()
   sys.exit(1)
+print
 
 # UPLOAD original mail as attachment
 response = requests.put(config.couchdb_url+hexdigest+'/mail?rev='+respjson.get('rev')
     , headers={'content-type':'text/plain'}
     , auth=config.couchdb_auth, verify=False, data=mail)
 
-print response.url
+print 'PUT', response.url
 print response.status_code
 print response.text
 respjson = json.loads(response.text)

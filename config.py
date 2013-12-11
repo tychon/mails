@@ -9,11 +9,13 @@ couchdb_auth = None
 # couchdb_auth = ('username', '1234')
 
 # Where mail_upload puts mails that couldn't be uploaded to CouchDB.
+# They will have a 21 chars file name:
+#   10 chars beginning of hash, underscore, 10 chars hex randomness.
 # Be sure this directory exists and is writable!
-# They will have a 21 chars file name: 10 chars beginning of hash, underscore, 10 chars hex randomness
 backupdir = '~/.mail_backup/'
 
 # File to write error log to
 # No expansion of '~' supported here!
+# Be sure the directory of the given file / the file is writable!
 errorlog = 'error.log'
 
