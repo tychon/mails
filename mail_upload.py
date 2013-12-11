@@ -56,17 +56,28 @@ def save_mail():
   f.close()
   log.error("Written mail %s\n  to %s", hexdigest, filename)
 
+#TODO parse command line args
+
 # parse mail
 message = email.parser.Parser().parsestr(mail)
 
-#TODO test defects
-#put defect mails into special document?
-print 'defects:', len(message.defects)
-for defect in message.defects:
-  print defect
-#TODO test for missing fields
+# test defects and try to save defect mails
+if len(message.defects) is not 0:
+  log.error("Parser signaled defect in mail %s:\n  %s\n  trying to save mail" % (hexdigest, str(message.defects)))
+  save_mail()
+  logging.shutdown()
+  sys.exit(1)
 
-# parse mail send time and convert it to UTC TODO?
+if not message.get('From', None) \
+or not message.get('To', None) \
+or not message.get('Subject', None) \
+or not message.get('Date', None) :
+  log.error("Missing one or more fields of From, To, Subject and Date\n  mail hash: %s\n  trying to save mail" % hexdigest)
+  save_mail()
+  logging.shutdown()
+  sys.exit(1)
+
+# parse mail send time and convert it to UTC
 sendtime = datetime.datetime.strptime(message.get('Date')[:-6], "%a, %d %b %Y %H:%M:%S")
 sendtime = sendtime + datetime.timedelta(hours=(-1 * int(message.get('Date')[-5:]) / 100))
 sendtimestr = datetime.datetime.strftime(sendtime, "%Y-%m-%d %H:%M:%S")
@@ -83,10 +94,10 @@ data = {
 , 'flags': []
 , 'labels': ['unread'] # TODO do this in autolabeling
 , 'keywords': []
-, 'from': message.get('From', None)
-, 'to': message.get('To', None)
+, 'from': message.get('From')
+, 'to': message.get('To')
 , 'date': sendtimestr
-, 'subject': message.get('Subject', None)
+, 'subject': message.get('Subject')
 }
 
 # UPLOAD document

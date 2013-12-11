@@ -30,10 +30,8 @@ flag: signed, encrypted
 labels: list of unique label names
 
 date: date given in mail, in ascii time format
-from: string of senders
-to: string of receivers
-cc: string of ccs
-bc: string of bcs
+from: email address of sender
+to: array of email addresses of receivers
 subject: string containing subject
 
 original message as standalone attachment in named 'mail'
