@@ -16,3 +16,9 @@ def convert_from_maildate(date):
   t = t + datetime.timedelta(hours=(-1 * int(date[-5:]) / 100))
   return datetime.datetime.strftime(t, "%Y-%m-%d %H:%M:%S")
 
+# see http://stackoverflow.com/a/480227
+def uniquify(seq):
+  seen = set()
+  seen_add = seen.add
+  return [ x for x in seq if x not in seen and not seen_add(x)]
+

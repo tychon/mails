@@ -86,14 +86,14 @@ or not message.get('Date', None) :
 
 froms = tos = None
 try:
-  froms = parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('From')))
+  froms = common.uniquify(parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('From'))))
 except parseaddr.ParserException as e:
   log.error("Couldn't parse address in From field list.\n  %s\n  From: %s\n  trying to save mail", str(e), message.get('From'))
   save_mail()
   logging.shutdown()
   sys.exit(1)
 try:
-  tos = parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('To')))
+  tos = common.uniquify(parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('To'))))
 except parseaddr.ParserException as e:
   log.error("Couldn't parse address in To field list.\n  %s\n  To: %s\n  trying to save mail", str(e), message.get('To'))
   save_mail()
