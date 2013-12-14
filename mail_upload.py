@@ -19,6 +19,7 @@ import json
 import requests
 
 import common
+import parseaddr
 # Import information about couchdb 
 import config
 
@@ -78,7 +79,23 @@ if not message.get('From', None) \
 or not message.get('To', None) \
 or not message.get('Subject', None) \
 or not message.get('Date', None) :
-  log.error("Missing one or more fields of From, To, Subject and Date\n  mail hash: %s\n  trying to save mail" % hexdigest)
+  log.error("Missing one or more fields of From, To, Subject and Date\n  mail hash: %s\n  trying to save mail", hexdigest)
+  save_mail()
+  logging.shutdown()
+  sys.exit(1)
+
+froms = tos = None
+try:
+  froms = parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('From')))
+except parseaddr.ParserException as e:
+  log.error("Couldn't parse address in From field list.\n  %s\n  From: %s\n  trying to save mail", str(e), message.get('From'))
+  save_mail()
+  logging.shutdown()
+  sys.exit(1)
+try:
+  tos = parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('To')))
+except parseaddr.ParserException as e:
+  log.error("Couldn't parse address in To field list.\n  %s\n  To: %s\n  trying to save mail", str(e), message.get('To'))
   save_mail()
   logging.shutdown()
   sys.exit(1)
@@ -98,8 +115,8 @@ data = {
 , 'flags': []
 , 'labels': ['unread'] # TODO do this in autolabeling
 , 'keywords': []
-, 'from': message.get('From')
-, 'to': message.get('To')
+, 'from': froms
+, 'to': tos
 , 'date': sendtimestr
 , 'subject': message.get('Subject')
 }
