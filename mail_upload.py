@@ -112,8 +112,10 @@ if override:
   print 'HEAD', response.url
   print response.status_code
   print response.headers
-  oldrevision = '?rev='+json.loads(response.headers.get('etag', '""'))
-  if oldrevision != '': print "Overriding old mail!"
+  rev = json.loads(response.headers.get('etag', '""'))
+  if rev != '':
+    oldrevision = '?rev='+rev
+    print "Overriding old mail!"
   print
 
 # UPLOAD document
