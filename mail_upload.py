@@ -145,7 +145,7 @@ print response.status_code
 print response.text
 respjson = json.loads(response.text)
 if not respjson.get('ok', False):
-  log.error("Could not upload metadata\n  hash: %s,\n  CouchDB response code %d, text (multiline): %s  trying to save mail" % (hexdigest, response.status_code, response.text))
+  log.error("Could not upload metadata\n  hash: %s,\n  CouchDB response code %d, text: %s  trying to save mail" % (hexdigest, response.status_code, response.text))
   save_mail()
   logging.shutdown()
   sys.exit(1)
@@ -161,7 +161,7 @@ print response.status_code
 print response.text
 respjson = json.loads(response.text)
 if not respjson.get('ok', False):
-  log.error("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  hash: %s,\n  CouchDB response code %d, text (multiline): %s  trying to save mail" % (hexdigest, response.status_code, response.text))
+  log.error("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  hash: %s,\n  CouchDB response code %d, text: %s  trying to save mail" % (hexdigest, response.status_code, response.text))
   save_mail()
   logging.shutdown()
   sys.exit(1)

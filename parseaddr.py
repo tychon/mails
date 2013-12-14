@@ -16,24 +16,34 @@ class ParserException(Exception):
 re_mbox = re.compile(r'(.*)\<([^\s]+)\>\s*')
 # regular expression for mailbox with simple mail address
 re_addr = re.compile(r'\s*([^\s]+)\s*')
+# regular expression for trailing comment
+re_comment = re.compile(r'.*(\([^)]*\))\s*')
 # regular expression for group of mailboxes
 re_grp = re.compile(r'(.*):(.*);\s*')
 # regular expression for one element in a list of addresses
 re_addrlist_elem = re.compile(r'([^,]*:[^;]*;[^,]*|[^,]+)')
 
-# Returns a tuple (display name, addr)
+# Returns a tuple (display name, addr, comment)
+# Understands comments after the address, i.e. <john.doe@example.com> (John Doe)
 # NOTE: Fails if the mbox is empty
 def parse_mailbox(mbox):
+  # delete comments
+  mo = re_comment.match(mbox)
+  comment = None
+  if mo:
+    mbox = mbox[:mo.start(1)]
+    comment = mo.group(1)
+  
   mo = re_mbox.match(mbox)
   if not mo:
     mo = re_addr.match(mbox)
     if not mo or len(mo.group()) != len(mbox):
       raise ParserException("Couldnt match  %s  as mailbox.\n" % mbox)
-    return (None, mo.group(1))
+    return (None, mo.group(1), comment)
   
   if len(mo.group()) != len(mbox):
     raise ParserException("Couldnt match  %s  as mailbox.\n" % mbox)
-  return (mo.group(1).strip(), mo.group(2))
+  return (mo.group(1).strip(), mo.group(2), comment)
 
 # Returns a list of mailboxes.
 # List may be empty.
