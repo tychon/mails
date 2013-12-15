@@ -9,7 +9,7 @@ def info(msg):
   else: sys.stderr.write(repr(msg))
   sys.stderr.write('\n')
 def err(msg):
-  if type(msg) == str: sys.stder.write(msg)
+  if type(msg) == str: sys.stderr.write(msg)
   else: sys.stderr.write(repr(msg))
   sys.stderr.write('\n')
   sys.stderr.flush()
