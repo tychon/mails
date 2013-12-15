@@ -1,10 +1,21 @@
 
+import sys
 import time
 import datetime
 import re
 
-re_date = re.compile(r'([^\(]*)\(')
+def info(msg):
+  if type(msg) == str: sys.stderr.write(msg)
+  else: sys.stderr.write(repr(msg))
+  sys.stderr.write('\n')
+def err(msg):
+  if type(msg) == str: sys.stder.write(msg)
+  else: sys.stderr.write(repr(msg))
+  sys.stderr.write('\n')
+  sys.stderr.flush()
+  sys.exit(1)
 
+re_date = re.compile(r'([^\(]*)\(')
 # Convert date from "Sat, 27 Sep 2008 22:05:46 +0200"
 # to "2008-09-27 20:05:46" UTC
 # In dates like 'Wed, 18 Sep 2013 19:13:14 +0200 (CEST)' the name of the

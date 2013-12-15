@@ -3,6 +3,7 @@ import sys
 import requests
 import json
 
+from common import info
 import config
 
 # parse args
@@ -25,23 +26,22 @@ while i < len(sys.argv):
 
 res = None
 
-#TODO make case insensitive
+#TODO make search case insensitive
 
 # Do from request
 if hfrom:
   r = requests.get(config.couchdb_url+config.design_doc+('_view/from?startkey="%s"&endkey="%s\u9999"' % (hfrom, hfrom))
           , auth=config.couchdb_auth, verify=False)
-  print r.url
-  print r.status_code
+  info((r.status_code, r.url))
   if not r.status_code == 200:
-    print "Query failed"
-    print r.text
+    info("Query failed")
+    info(r.text)
     sys.exit(1)
   res = json.loads(r.text)['rows']
   if len(res) == 0:
-    print "No results for FROM: %s*" % (hfrom)
+    info("No results for FROM: %s*" % hfrom)
     sys.exit(0)
-  print "%s results for FROM: %s*" % (len(res), hfrom)
+  info("%s results for FROM: %s*" % (len(res), hfrom))
   res = map(lambda x: x['value'], res)
 
 if hto:
@@ -52,22 +52,20 @@ if hto:
     # Search for to in CouchDB
     r = requests.get(config.couchdb_url+config.design_doc+('_view/to?startkey="%s"&endkey="%s\u9999"' % (hto, hto))
             , auth=config.couchdb_auth, verify=False)
-    print r.url
-    print r.status_code
+    info((r.status_code, r.url))
     if not r.status_code == 200:
-      print "Query failed"
-      print r.text
+      info("Query failed")
+      info(r.text)
       sys.exit(1)
     res = json.loads(r.text)['rows']
     res = map(lambda x: x['value'], res)
   
   if len(res) == 0:
-    print "No results for TO: %s*" % (hto)
+    info("No results for TO: %s*" % hto)
     sys.exit(0)
-  print "%s results for TO: %s*" % (len(res), hto)
+  info("%s results for TO: %s*" % (len(res), hto))
 
 #TODO filter by other criteria
 
-print "\nRESULT"
 for val in res: print val['_id']
 
