@@ -58,3 +58,5 @@ for count, line in enumerate(sys.stdin):
   else:
     info("WARNING: status code: %d, text: %s" % (r.status_code, r.text))
 
+if isinstance(box, mailbox.mbox): box.close()
+
