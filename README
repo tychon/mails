@@ -30,7 +30,7 @@ flag: signed, encrypted
 labels: list of unique label names
 
 date: date UTC given in mail, in YYYY-MM-DD hh:mm:ss
-from: email address of sender
+from: array of email addresses of senders
 to: array of email addresses of receivers
 subject: string containing subject
 
@@ -39,17 +39,36 @@ original message as standalone attachment in named 'mail'
 
 ### Database Views
 
-  inbox
+  from
 
-All mails with labeled "unread".
-Functions: Map
-Key: date
-Value: flags
+Emits one entry for every sender in From: field of a mail.
+So you can search with
+.../_design/post/_view/from?startkey=%22someone%22&endkey=%22xaver%22
+Key: one address spec
+Value: doc
+
+  to
+
+Emits one entry for every recipient in To: field of a mail.
+Key: one address spec
+Value: doc
 
   labels
+
+Emits one entry for every label listed in doc.labels .
+Key: one label string
+Value: doc
+
+  labels_list
 
 A list of all labels used anywhere.
 Functions: Map & Reduce
 Key: Null
 Value: List of all labels
 
+  inbox
+
+All mails with labeled "unread".
+Functions: Map
+Key: date
+Value: flags
