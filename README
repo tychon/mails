@@ -1,25 +1,44 @@
 
 not python 3
 
-### Scripts
+### TODO
+
+* write function for parsing and uploading mail
+* write mail_view script for viewing inbox and searchresults easily
+* write full text search indexing (in upload and search scripts)
+* write module to load mails from Maildirs or mboxes
+* Support comments and quoted strings in parseaddr.py
+* Convert quoted-printable in subject and email displayname to utf8
+* Check encoding on downloading and saving emails
+
+### For use (not implemented ...yet)
 
 * forward script
-  Forward mails from postfix to upload script
+  Forward mails from postfix to upload script, to be put into ~/.forward
 
-* upload
+* ... more to come
+
+### Python Modules
+
+* config
+  Configurations for logs, the CouchDB connection and other things.
+
+* mail_upload
   Parse and upload a given mail. (Extract metadata, maybe get keywords)
-  (needs python-requests)
 
-* search
+* mail_search
   Search for mail hashes by metadata (maybe even keywords)
-  Results in a list of hashes and metadata (one-liners) in a file
-  (as input to download or to look through by user).
+  Python function returns docs. Script prints list of hashes to stdout.
 
-* download
-  Download mail / mails with a given hash into mbox file.
-
-* parse mboxes
-  Parse existing mailboxes, ask user give mails to upload script.
+* mail_download
+  Download mails with given hashes read from stdin into
+  ** mbox or
+  ** Maildir or
+  ** execute a command for every mail with the mail given as stdin or
+  ** write them simply to stdout (with no separation, only useful for one email)
+  Every beginning of a line from stdin starting with hex chars is taken as a
+  doc id and is downloaded. Add comments / more data separated with a whitespace
+  after the hash, or start lines with whitespace or non hey char to ignore them.
 
 ### Document format
 
@@ -61,14 +80,15 @@ Value: doc
 
   labels_list
 
-A list of all labels used anywhere.
+A unique list of all labels used in all doc.labels .
 Functions: Map & Reduce
 Key: Null
 Value: List of all labels
 
   inbox
 
-All mails with labeled "unread".
+All mails labeled "unread".
 Functions: Map
 Key: date
 Value: flags
+
