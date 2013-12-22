@@ -27,11 +27,11 @@ doc_id: sha256 hash of whole mail as in 'data' field
 upload_date: date UTC, when the mail was uploaded in YYYY-MM-DD hh:mm:ss
             `date "+%Y-%M-%d %H:%m:%S"` i.e. 2013-12-08 11:12:42
 flag: signed, encrypted
-labels: list of unique label names
+labels: list of unique label names, all lowercase
 
 date: date UTC given in mail, in YYYY-MM-DD hh:mm:ss
-from: array of email addresses of senders
-to: array of email addresses of receivers
+from: array of email addresses of senders, all lowercase
+to: array of email addresses of receivers, all lowercase
 subject: string containing subject
 
 original message as standalone attachment in named 'mail'

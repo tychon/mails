@@ -23,6 +23,7 @@ import parseaddr
 # Import information about couchdb 
 import config
 
+# TODO Use logging setup from common.py
 # Setup logging
 # For possible format strings see LogRecord attributes in logging module doc
 # You have to set the level to DEBUG to see any of the .info messages.
@@ -84,6 +85,7 @@ or not message.get('Date', None) :
   logging.shutdown()
   sys.exit(1)
 
+# TODO lowercase email addresses
 froms = tos = None
 try:
   froms = common.uniquify(parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('From'))))
