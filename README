@@ -63,6 +63,8 @@ original message as standalone attachment in named 'mail'
   with content-type: text/plain
 
 ### Database Views
+The design document is saved under /_design-post
+Upload it to your DB with curl or on any other way.
 
   from
 
