@@ -1,12 +1,12 @@
 # see RFC 5322
 # probably doesn't work on quoted strings and comments
 # doesnt work on ',' or ';' in display names
-# Most functions raise a ParserException when they encounter something strange.
+# Most functions raise a AddrParserException when they encounter something strange.
 
 import sys
 import re
 
-class ParserException(Exception):
+class AddrParserException(Exception):
   def __init__(self, value):
     self.value = value
   def __str__(self):
@@ -38,11 +38,11 @@ def parse_mailbox(mbox):
   if not mo:
     mo = re_addr.match(mbox)
     if not mo or len(mo.group()) != len(mbox):
-      raise ParserException("Couldnt match  %s  as mailbox.\n" % mbox)
+      raise AddrParserException("Couldnt match  %s  as mailbox.\n" % mbox)
     return (None, mo.group(1), comment)
   
   if len(mo.group()) != len(mbox):
-    raise ParserException("Couldnt match  %s  as mailbox.\n" % mbox)
+    raise AddrParserException("Couldnt match  %s  as mailbox.\n" % mbox)
   return (mo.group(1).strip(), mo.group(2), comment)
 
 # Returns a list of mailboxes.
@@ -59,7 +59,7 @@ def parse_mboxlist(mbl):
 def parse_group(grp):
   mo = re_grp.match(grp)
   if not mo or len(mo.group()) != len(grp):
-    raise ParserException("Couldnt match  %s  as mailbox group.\n" % grp)
+    raise AddrParserException("Couldnt match  %s  as mailbox group.\n" % grp)
   return (mo.group(1).strip(), parse_mboxlist(mo.group(2)))
 
 # Parses an address (mailbox or group of mailboxes)
@@ -74,12 +74,12 @@ def parse_address_list(addresslist):
   while addrlist:
     mo = re_addrlist_elem.match(addrlist)
     if not mo:
-      raise ParserException("Couldnt match  %s  as address list\n" % addrlist)
+      raise AddrParserException("Couldnt match  %s  as address list\n" % addrlist)
     res.append(parse_address(addrlist[:mo.end()]))
     if len(addrlist) > mo.end() and addrlist[mo.end()] == ',':
       addrlist = addrlist[mo.end()+1:].strip()
       if not addrlist or addrlist.startswith(','):
-        raise ParserException("Empty mailbox name in address list: %s\n" % addresslist)
+        raise AddrParserException("Empty mailbox name in address list: %s\n" % addresslist)
     else: break
   return res
 
@@ -96,5 +96,5 @@ def extract_addresses(parsed):
   elif type(parsed) == list:
     l = map(extract_addresses, parsed) # extract addresses from list
     return [item for sublist in l for item in sublist] # flatten list
-  else: raise ParserException("Unexpected type in address tree.")
+  else: raise AddrParserException("Unexpected type in address tree.")
 

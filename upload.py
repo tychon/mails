@@ -48,20 +48,20 @@ def parsemail(mail, logger='none'):
   if message.get('From', None):
     try:
       data['from'] = froms = common.uniquify(parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('From'))))
-    except parseaddr.ParserException as e:
+    except parseaddr.AddrParserException as e:
       raise MailParserException("Couldn't parse address in From field list.\n  %s\n  From: %s" % (str(e), message.get('From')))
   
   if message.get('To', None):
     try:
       data['to'] = common.uniquify(parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('To'))))
-    except parseaddr.ParserException as e:
+    except parseaddr.AddrParserException as e:
       raise MailParserException("Couldn't parse address in To field list.\n  %s\n  To: %s" % (str(e), message.get('To')))
   
   if message.get('Date', None):
     try:
       # parse mail send time and convert it to UTC
       data['date'] = common.convert_from_maildate(message.get('Date'))
-    except parseaddr.ParserException as e:
+    except Exception as e:
       raise MailParserException("Could not convert %s to YYYY-MM-DD hh:mm:ss\n  %s" % (message.get('Date'), str(e)))
   
   # format current UTC time
