@@ -75,7 +75,6 @@ def parsemail(mail, logger='none'):
   
   #TODO check gpg signed and encrypted (no verification) in extra module
   #TODO auto labeling in extra module
-  #TODO create index for full text search
   
   return data
 
