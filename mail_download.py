@@ -1,6 +1,16 @@
 #!/usr/bin/python
-# NOTE: --exec args are run with shell=True, this is risky if you use
-# untrusted programms!
+# Usage:
+# ./mail_download.py [--override] [--mbox FILE|--maildir DIRECTORY] [--exec CMD] < hashes
+# NOTE: Hashes is a file, where every line beginning with a hex number is a document id.
+#   When the line matches this regex: ^([0-9A-Fa-f]+)\s+ the capturing part
+#   has to denote a document id.
+#   Comment lines out by beginning them with whitespace.
+#   This is the stdout of mail_search.
+# NOTE: You have to give the --override flag before --mox or --maildir
+# NOTE: Most probably you have to quote your CMD:
+#   $ ./mail_download.py --exec 'grep Date' < hashes
+# NOTE: --exec args are run with shell=True, this is risky if you call
+#   untrusted programms!
 
 import sys, os
 import common, logging
