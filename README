@@ -49,9 +49,9 @@ not python 3
 ### Document format
 
 doc_id: sha256 hash of whole mail as in 'data' field
+type: 'mail'
 upload_date: date UTC, when the mail was uploaded in YYYY-MM-DD hh:mm:ss
             `date "+%Y-%M-%d %H:%m:%S"` i.e. 2013-12-08 11:12:42
-flag: signed, encrypted
 labels: list of unique label names, all lowercase
 
 date: date UTC given in mail, in YYYY-MM-DD hh:mm:ss
