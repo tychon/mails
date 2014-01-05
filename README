@@ -3,10 +3,6 @@ not python 3
 
 ### TODO
 
-* write module to load mails from Maildirs or mboxes
-* test view script
-
-* support --hashes options everywhere were stdin works too
 * enhance search with operators
 * write full text search indexing
 * Support comments and quoted strings in parseaddr.py
@@ -22,10 +18,7 @@ not python 3
 * ... more to come
 
 ### Python Modules
-
-* config
-  Configurations for logs, the CouchDB connection and other things.
-
+##### Executable
 * upload
   Parse and upload a given mail (extract metadata from header).
   If a mail with the same hash exists, you have to give --override.
@@ -52,6 +45,13 @@ not python 3
 * view
   Open a local mailbox and make stats. Then open mutt. When mutt exits, check
   changes to mailbox and report hashes of changed mails.
+
+##### Modules only
+
+* config
+  Configurations for logs, the CouchDB connection and other things.
+
+##### To come
 
 * keywords
   Search mails by keywords with extra index file not included in database for

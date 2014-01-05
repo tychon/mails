@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Usage:
-# ./mail_download.py [--override] [--mbox FILE|--maildir DIRECTORY] [--exec CMD] < hashes
+# ./mail_download.py [--override] [--mbox FILE|--maildir DIRECTORY] [--exec CMD] [--hashes FILE] < hashes
 # NOTE: Hashes is a file, where every line beginning with a hex number is a document id.
 #   When the line matches this regex: ^([0-9A-Fa-f]+)\s+ the capturing part
 #   has to denote a document id.
@@ -47,6 +47,7 @@ def main():
   # open mailbox and read args
   box = cmd = None
   append = True
+  allhashes = None
   
   i = 1
   while i < len(sys.argv):
@@ -68,10 +69,20 @@ def main():
     elif arg == '--exec':
       i += 1
       cmd = sys.argv[i]
+    elif arg == '--hashes':
+      i += 1
+      allhashes = open(sys.argv[i], 'r').read()
+    else:
+      logging.getLogger('stderr').error("Unknown arg %s"%arg)
+      logging.shutdown()
+      sys.exit(1)
     i += 1
   
+  if allhashes == None:
+    allhashes = sys.stdin.read()
+  
   re_id = re.compile('([0-9A-Fa-f]+)\s+')
-  for count, line in enumerate(sys.stdin):
+  for count, line in enumerate(allhashes.splitlines(True)):
     mo = re_id.match(line)
     if not mo:
       common.info("Ignoring line %d: %s" % (count, line))

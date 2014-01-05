@@ -39,23 +39,32 @@ def main():
   i = 1
   while i < len(sys.argv):
     arg = sys.argv[i]
-    i += 1
     if arg == '--hashes':
+      i += 1
       allhashes = open(sys.argv[i], 'r').read()
     if arg == '--tmp':
+      i += 1
       # try to delete old temporary mailbox
       try: os.remove(sys.argv[i])
       except OSError: pass
       box = mailbox.mbox(sys.argv[i])
       boxpath = sys.argv[i]
     elif arg == '--muttrc':
+      i += 1
       muttrc = '-F '+sys.argv[i]
     elif arg == '--sent':
+      i += 1
       sentpath = sys.argv[i]
     elif arg == '--changed':
+      i += 1
       changedhashesfile = sys.argv[i]
     elif arg == '--upload':
       doupload = True
+    else:
+      log.error("Unknown arg %s"%arg)
+      logging.shutdown()
+      sys.exit(1)
+    i += 1
   
   if box == None:
     log.error("No temporary mailbox given.")
