@@ -44,6 +44,10 @@ not python 3
   doc id and is downloaded. Add comments / more data separated with a whitespace
   after the hash, or start lines with whitespace or non hey char to ignore them.
 
+* view
+  Open a local mailbox and make stats. Then open mutt. When mutt exits, check
+  changes to mailbox and report hashes of changed mails.
+
 * keywords
   Search mails by keywords with extra index file not included in database for
   security reasons. So you can index you decryptet PGP Mails :-) and the index

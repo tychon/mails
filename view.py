@@ -1,0 +1,136 @@
+#!/usr/bin/python
+# usage: ./view.py --tmp FILE [--changed FILE] [--upload] [--sent FILE]
+#   --hashes FILE  A file with the hashes of the documents to load
+#   --tmp FILE     A temporary file used to save downloaded mails. Given to mutt with -f
+#                  An existing file with this name will be overwritten.
+#   --muttrc FILE  A file given to mutt with -F
+#   --sent FILE    A mbox used by mutt to save sent mails (muttrc: set record="$HOME/Mail/sent";)
+#                  The mails are uploaded to database independent of --changed and --upload
+#   --changed FILE A File to save changed hashes to (one hash per line)
+#   --upload       Upload (Override mail metadata in database) changed mail
+# Mutt breaks, if you give some stdin to this script.
+
+import sys, os, re, subprocess, traceback
+import common, logging
+import mailbox, hashlib
+
+import config
+import download, upload
+
+def hash_mails(box):
+  hashes = []
+  for key in box.iterkeys():
+    sha = hashlib.new('sha256')
+    sha.update(box.get_string(key))
+    hashes.append((key, sha.hexdigest()))
+  return hashes
+
+def main():
+  log = logging.getLogger('stderr')
+  elog = logging.getLogger('view')
+  
+  allhashes = ''
+  muttrc = ''
+  boxpath = box = None
+  sentpath = sentbox = None
+  changedhashesfile = None
+  doupload = False
+  
+  i = 1
+  while i < len(sys.argv):
+    arg = sys.argv[i]
+    i += 1
+    if arg == '--hashes':
+      allhashes = open(sys.argv[i], 'r').read()
+    if arg == '--tmp':
+      # try to delete old temporary mailbox
+      try: os.remove(sys.argv[i])
+      except OSError: pass
+      box = mailbox.mbox(sys.argv[i])
+      boxpath = sys.argv[i]
+    elif arg == '--muttrc':
+      muttrc = '-F '+sys.argv[i]
+    elif arg == '--sent':
+      sentpath = sys.argv[i]
+    elif arg == '--changed':
+      changedhashesfile = sys.argv[i]
+    elif arg == '--upload':
+      doupload = True
+  
+  if box == None:
+    log.error("No temporary mailbox given.")
+    sys.exit(1)
+  
+  ids = []
+  # download mails
+  re_id = re.compile('([0-9A-Fa-f]+)\s+')
+  for count, line in enumerate(allhashes.splitlines(True)):
+    mo = re_id.match(line)
+    if mo == None:
+      log.error("Ignoring line %d: %s" % (count+1, line))
+      continue
+    docid = mo.group(1)
+    try:
+      download.download(docid, box=box, logger='stderr')
+      ids.append(docid)
+    except IOError as e:
+      elog.error("Couldnt download mail %s\n  %s" % (docid, traceback.format_exc(e)))
+      logging.shutdown()
+      sys.exit(1)
+  
+  hashes_before = hash_mails(box)
+  box.close()
+  
+  # open mutt
+  cmd = "mutt %s -f %s" % (muttrc, boxpath)
+  log.info(cmd)
+  retval = subprocess.call(cmd, shell=True)
+  log.info("Mutt returned with status %d."%retval)
+  if retval:
+    elog.error("Mutt error %d. EXIT."%retval)
+    logging.shutdown()
+    sys.exit(1)
+  
+  box = mailbox.mbox(boxpath)
+  # detect changes in mbox
+  hashes_after = hash_mails(box)
+  
+  if len(hashes_before) != len(hashes_after) or len(hashes_before) != len(ids):
+    log.error("Some mails were deleted. Aborting. No changes made to DB.")
+    sys.exit(1)
+  
+  # filter differing hashes
+  changed = filter(lambda pair: pair[1] != pair[2], zip(ids, hashes_before, hashes_after))
+  # get (mbox key, docid) only
+  changed = map(lambda pair: (pair[1][0], pair[0]), changed)
+  print changed
+  log.info("%d mails changed."%len(changed))
+  
+  # write changed mails file
+  if changedhashesfile:
+    f = open(changedhashesfile, 'w+')
+    for key, docid in changed:
+      f.write(docid)
+      f.write('\n')
+    f.close()
+  
+  # upload changed mails
+  if doupload:
+    for key, docid in changed:
+      try:
+        mdata = upload.parsemail(box.get_string(key), logger='stderr')
+        upload.upload(docid, mdata, override=True, logger='stderr')
+      except:
+        elog.error("Exception while parsing or uploading mail:\n %s" % traceback.format_exc())
+        upload.save_mail(docid, box.get_string(key))
+        logging.shutdown()
+        sys.exit(1)
+  
+  #TODO detect sent mails
+  
+  box.close()
+  logging.shutdown()
+  sys.exit(0)
+
+if __name__ == '__main__': main()
+
