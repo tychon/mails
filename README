@@ -1,67 +1,71 @@
 
 not python 3
 
-### TODO
+####
+TODO
 
-* enhance search with operators
-* write full text search indexing
 * unfold whitespace in header fields?
 * Support comments and encoded-word in parseaddr.py
   and convert encoded-word in email displayname to utf8
-* Check encoding on downloading and saving emails?
+http://stackoverflow.com/questions/4157899/get-python-getaddresses-to-decode-encoded-word-encoding
+
+* enhance search with operators
+* write full text search indexing
 * Add GPG signed and encrypted to autolabelling
 * Add license conforming lrparsing.py license
 * Documentation
 
-### For use (not implemented ...yet)
+##########
+Content
 
-* forward script
-  Forward mails from postfix to upload script, to be put into ~/.forward
+* Python Scripts
+* Database
+* Search Queries
+* Labelling
+* Python Logging
 
-* ... more to come
 
-### Python Modules
-##### Executable
+##############
+Python Scripts
+
+For a more specific documentation see the documentation leading the scripts.
+Most of the executable scripts are also modules you can include.
+
+## Executable
 * upload
-  Parse and upload a given mail (extract metadata from header).
-  If a mail with the same hash exists, you have to give --override.
-  If --override is given, only the metadata will be updated, not the
-  original mail attachment
-
+  Parse and upload a single mail and its metadata.
 * search
   Search for mail hashes by metadata.
-  Python function returns docs. Script prints list of hashes to stdout.
-
 * download
-  Download mails with given hashes read from stdin into
-  ** mbox or
-  ** Maildir or
-  ** execute a command for every mail with the mail given as stdin or
-  ** write them simply to stdout (with no separation, only useful for one email)
-  Every beginning of a line from stdin starting with hex chars is taken as a
-  doc id and is downloaded. Add comments / more data separated with a whitespace
-  after the hash, or start lines with whitespace or non hey char to ignore them.
-
+  Download mails with given hashes
 * read
   Execute a command for every file in a mbox / Maildir
-
 * view
-  Open a local mailbox and make stats. Then open mutt. When mutt exits, check
-  changes to mailbox and report hashes of changed mails.
+  Start mutt for local mailbox and upload metadata of changed mails when mutt
+  closed.
 
-##### Modules only
-
+## Modules only
 * config
   Configurations for logs, the CouchDB connection and other things.
+* common
+  Sets up global logging system and offers miscellaneous functions.
+* labels
+  Parse autolabelling file and add labels to parsed metadata.
+* parseaddr
+  Parse address list in From: and To: header field according to 5322
+* searchqueryparser
+  Parse search queries for search.py
 
-##### To come
+## Other Modules
 
-* keywords
-  Search mails by keywords with extra index file not included in database for
-  security reasons. So you can index you decryptet PGP Mails :-) and the index
-  is saved locally on your computer.
+* lrparsing
+  Module by Russell Stuart under GPLv2, or any later version.
 
-### Document format
+
+########
+Database
+
+## Document format
 
 doc_id: sha256 hash of whole mail as in 'data' field
 type: 'mail'
@@ -77,7 +81,8 @@ subject: string containing subject
 original message as standalone attachment in named 'mail'
   with content-type: text/plain
 
-### Database Views
+## Database Views
+
 The design document is saved under /_design-post
 Upload it to your DB with curl or on any other way.
 
@@ -114,4 +119,54 @@ All mails labeled "unread".
 Functions: Map
 Key: date
 Value: flags
+
+##############
+Search Queries
+
+#TODO write doc for search queries
+
+#########
+Labelling
+
+In config.py the configuration
+autolabels = 'PATH'
+you can put a file with rules to add labels to metadata while parsing mails.
+
+The file is made of sections, every section separated by a single newline.
+The section header '[spam]' gives the name of the label to be added.
+Then the rules follow.
+A rule is made up of a keyword FROM, TO, DATE or LABEL followed by a colon and
+a regular expression enclosed in slashes. Example:
+
+[spam]
+FROM:/update.*@facebook.*/
+
+[spam]
+FROM:/info@twitter.com/
+DATE:/2014*/
+
+This one marks all mails from update.*@facebook.* as spam and all mails that
+are from info@twitter.com in the year 2014. (This rule is somehow questionable)
+A label is added, if every rule in a section matched the metadata.
+To achieve a OR conjunction create multiple sections for the same label as seen
+above.
+
+If you want to check a config file for sanity, do:
+
+$ python
+> import labels
+> l = labels.Labeller('PATH')
+> l.check({'from':'john.doe@example.com', 'to':'mark.twain@gmx.com', 'date':'2004-06-30 00:03:57'})
+
+
+##############
+Python Logging
+
+By importing the python module common the logging system is set up globally.
+A logger 'stderr' is created for output to stderr.
+A logger 'none' is create for ignoring any logging made.
+Any other logger automatically writes to stderr and the error log defined in
+config.errorlog = 'PATH'
+The sys.excepthook is set, so that any exception not catched is written to
+stderr and the error log. Then the program exits with code 1.
 
