@@ -26,6 +26,9 @@ not python 3
 
 * upload
   Parse and upload a given mail (extract metadata from header).
+  If a mail with the same hash exists, you have to give --override.
+  If --override is given, only the metadata will be updated, not the
+  original mail attachment
 
 * search
   Search for mail hashes by metadata.

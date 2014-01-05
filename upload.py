@@ -1,4 +1,4 @@
-
+#!/usr/bin/python
 # Reads a mail from stdin and saves it as a string.
 # Then the mail is parsed analyzed and uploaded to the CouchDB given in config.py
 # Give the command line arg "--override" to make this script override old an
@@ -79,20 +79,27 @@ def parsemail(mail, logger='none'):
   return data
 
 # Raises an IOError if something goes wrong.
-def upload(hexdigest, metadata, mail, override=False, logger='none'):
+def upload(hexdigest, metadata, mail=None, override=False, logger='none'):
   log = logging.getLogger(logger)
   # Retrieve rev if override is enabled
   oldrevision = ''
   if override:
-    r = requests.head(config.couchdb_url+hexdigest
+    r = requests.get(config.couchdb_url+hexdigest
         , auth=config.couchdb_auth, verify=False)
-    log.info(('HEAD', r.status_code, r.url))
+    log.info(('GET', r.status_code, r.url))
     if r.status_code != 200:
-      raise IOError("Query failed, code %d:\n  HEAD %s\n  %s" % (r.status_code, r.url, r.text))
+      raise IOError("Query failed, code %d:\n  %s\n  %s" % (r.status_code, r.url, r.text))
     rev = json.loads(r.headers.get('etag', '""'))
     if rev != '':
       oldrevision = '?rev='+rev
-      log.info("Overriding old mail %s", hexdigest)
+      # preserve attachment
+      print r.text
+      metadata['_attachments'] = json.loads(r.text)['_attachments']
+    else: override=False
+  
+  if mail == None and override == False:
+    raise IOError("Could not write metadata without real mail as attachment.")
+  if override: log.info("Overriding old mail %s", hexdigest)
   
   # upload meta data
   # verify=False is for untrusted SSL certificates (you created on your own)
@@ -104,13 +111,23 @@ def upload(hexdigest, metadata, mail, override=False, logger='none'):
     raise IOError("Could not upload metadata\n  hash: %s,\n  CouchDB response code %d, text: %s" % (hexdigest, r.status_code, r.text))
   
   # upload original mail as attachment
-  r = requests.put(config.couchdb_url+hexdigest+'/mail?rev='+respjson.get('rev')
-      , headers={'content-type':'text/plain'}
-      , auth=config.couchdb_auth, verify=False, data=mail)
-  log.info(('PUT', r.status_code, r.url))
-  respjson = json.loads(r.text)
-  if not respjson.get('ok', False):
-    raise IOError("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  hash: %s,\n  CouchDB response code %d, text: %s" % (hexdigest, r.status_code, r.text))
+  if not override and mail != None:
+    r = requests.put(config.couchdb_url+hexdigest+'/mail?rev='+respjson.get('rev')
+        , headers={'content-type':'text/plain'}
+        , auth=config.couchdb_auth, verify=False, data=mail)
+    log.info(('PUT', r.status_code, r.url))
+    respjson = json.loads(r.text)
+    if not respjson.get('ok', False):
+      raise IOError("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  hash: %s,\n  CouchDB response code %d, text: %s" % (hexdigest, r.status_code, r.text))
+
+# helper function to save mail to a file in case of an error
+def save_mail(hexdigest, mail):
+  randomness = ''.join(random.choice('abcdef0123456789') for x in range(10))
+  filename = os.path.expanduser("%s%s_%s" % (config.backupdir, hexdigest[:10], randomness))
+  f = open(filename, 'w+')
+  f.write(mail)
+  f.close()
+  logging.getLogger('savemail').error("Written mail %s\n  to %s", hexdigest, filename)
 
 def main():
   ilog = logging.getLogger('stderr')
@@ -121,22 +138,12 @@ def main():
   sha.update(mail)
   hexdigest = sha.hexdigest()
   ilog.info("Mail received: %s", hexdigest)
-  
-  # helper function to save mail to a file in case of an error
-  def save_mail():
-    randomness = ''.join(random.choice('abcdef0123456789') for x in range(10))
-    filename = os.path.expanduser("%s%s_%s" % (config.backupdir, hexdigest[:10], randomness))
-    f = open(filename, 'w+')
-    f.write(mail)
-    f.close()
-    elog.error("Written mail %s\n  to %s", hexdigest, filename)
-  
   try:
     data = parsemail(mail, logger='stderr')
     upload(hexdigest, data, mail, "--override" in sys.argv, 'stderr')
   except:
     elog.error("Exception while parsing or uploading mail:\n %s" % traceback.format_exc())
-    save_mail()
+    save_mail(hexdigest, mail)
     logging.shutdown()
     sys.exit(1)
   
