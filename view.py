@@ -126,7 +126,29 @@ def main():
         sys.exit(1)
   box.close()
   
-  #TODO detect sent mails
+  # upload sent mails
+  if sentpath:
+    # open mailbox
+    try:
+      box = mailbox.mbox(sentpath, create=False)
+    except mailbox.NoSuchMailboxError as e:
+      common.fatal("Given mailbox for sent mails does not exist: %s"%sentpath)
+    log.info("Uploading %d mails in sent mbox %s"%(box.__len__(), sentpath))
+    # upload
+    for key in box.iterkeys():
+      try:
+        mail = box.get_string(key)
+        mdata = upload.parsemail(mail, logger='stderr')
+        mdata['labels'].append('sent')
+        doc_id = upload.hash_mail(mail)
+        upload.upload(doc_id, mdata, mail, logger='stderr')
+      except:
+        elog.error("Exception while parsing or uploading mail:\n %s" % traceback.format_exc())
+        upload.save_mail(docid, box.get_string(key))
+        continue
+    box.close()
+    # truncate file
+    open(sentpath, 'w').close()
   
   logging.shutdown()
   sys.exit(0)
