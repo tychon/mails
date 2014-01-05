@@ -1,0 +1,5 @@
+[spam]
+FROM:/update.*@facebook.*/
+
+[spam]
+FROM:/info@twitter.com/

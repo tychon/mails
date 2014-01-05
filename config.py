@@ -20,3 +20,6 @@ couchdb_auth = None
 # couchdb_auth = ('username', '1234')
 
 design_doc = '_design/post/'
+
+autolabels = 'autolabels'
+

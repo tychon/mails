@@ -12,7 +12,7 @@ import email.parser, email.message
 import hashlib, time
 import requests, json
 
-import parseaddr
+import parseaddr, labels
 # Import information about couchdb 
 import config
 
@@ -62,13 +62,16 @@ def parsemail(mail, logger='none'):
   data['upload_date'] = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
   log.info("upload-date: %s", data['upload_date'])
   
+  # add labels
   data['labels'] = []
   if message.get('Status', None):
    if not 'R' in message.get('Status'):
      data['labels'].append('unread')
   else: data['labels'].append('unread')
   
-  #TODO auto labeling in extra module
+  if config.autolabels:
+    labeller = labels.Labeller(path=config.autolabels)
+    labeller.check(data)
   log.info("Labels: %s", ' '.join(data['labels']))
   
   #TODO check gpg signed and encrypted (no verification) in extra module
