@@ -74,17 +74,15 @@ def parsemail(mail, logger='none'):
     labeller.check(data)
   log.info("Labels: %s", ' '.join(data['labels']))
   
-  #TODO check gpg signed and encrypted (no verification) in extra module
-  
   return data
 
 # Raises an IOError if something goes wrong.
-def upload(hexdigest, metadata, mail=None, override=False, logger='none'):
+def upload(docid, metadata, mail=None, override=False, logger='none'):
   log = logging.getLogger(logger)
   # Retrieve rev if override is enabled
   oldrevision = ''
   if override:
-    r = requests.get(config.couchdb_url+hexdigest
+    r = requests.get(config.couchdb_url+docid
         , auth=config.couchdb_auth, verify=False)
     log.info(('GET', r.status_code, r.url))
     if r.status_code != 200:
@@ -99,45 +97,49 @@ def upload(hexdigest, metadata, mail=None, override=False, logger='none'):
   
   if mail == None and override == False:
     raise IOError("Could not write metadata without real mail as attachment.")
-  if override: log.info("Overriding old mail %s", hexdigest)
+  if override: log.info("Overriding old mail %s", docid)
   
   # upload meta data
   # verify=False is for untrusted SSL certificates (you created on your own)
-  r = requests.put(config.couchdb_url+hexdigest+oldrevision
+  r = requests.put(config.couchdb_url+docid+oldrevision
       , auth=config.couchdb_auth, verify=False, data=json.dumps(metadata))
   log.info(('PUT', r.status_code, r.url))
   respjson = json.loads(r.text)
   if not respjson.get('ok', False):
-    raise IOError("Could not upload metadata\n  hash: %s,\n  CouchDB response code %d, text: %s" % (hexdigest, r.status_code, r.text))
+    raise IOError("Could not upload metadata\n  doc._id: %s,\n  CouchDB response code %d, text: %s" % (docid, r.status_code, r.text))
   
   # upload original mail as attachment
   if not override and mail != None:
-    r = requests.put(config.couchdb_url+hexdigest+'/mail?rev='+respjson.get('rev')
+    r = requests.put(config.couchdb_url+docid+'/mail?rev='+respjson.get('rev')
         , headers={'content-type':'text/plain'}
         , auth=config.couchdb_auth, verify=False, data=mail)
     log.info(('PUT', r.status_code, r.url))
     respjson = json.loads(r.text)
     if not respjson.get('ok', False):
-      raise IOError("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  hash: %s,\n  CouchDB response code %d, text: %s" % (hexdigest, r.status_code, r.text))
+      raise IOError("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  doc._id: %s,\n  CouchDB response code %d, text: %s" % (docid, r.status_code, r.text))
+
+def hash_mail(mail):
+  sha = hashlib.new('sha256')
+  sha.update(mail)
+  return sha.hexdigest()
 
 # helper function to save mail to a file in case of an error
-def save_mail(hexdigest, mail):
+def save_mail(docid, mail):
   randomness = ''.join(random.choice('abcdef0123456789') for x in range(10))
-  filename = os.path.expanduser("%s%s_%s" % (config.backupdir, hexdigest[:10], randomness))
+  filename = os.path.expanduser("%s%s_%s" % (config.backupdir, docid[:10], randomness))
   f = open(filename, 'w+')
   f.write(mail)
   f.close()
-  logging.getLogger('savemail').error("Written mail %s\n  to %s", hexdigest, filename)
+  logging.getLogger('savemail').error("Written mail %s\n  to %s", docid, filename)
 
 def main():
   ilog = logging.getLogger('stderr')
   elog = logging.getLogger('upload')
   mail = sys.stdin.read()
   # hash mail for document id
-  sha = hashlib.new('sha256')
-  sha.update(mail)
-  hexdigest = sha.hexdigest()
+  hexdigest = hash_mail(mail)
   ilog.info("Mail received: %s", hexdigest)
+  
   try:
     data = parsemail(mail, logger='stderr')
     upload(hexdigest, data, mail, "--override" in sys.argv, 'stderr')

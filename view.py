@@ -20,9 +20,7 @@ import download, upload
 def hash_mails(box):
   hashes = []
   for key in box.iterkeys():
-    sha = hashlib.new('sha256')
-    sha.update(box.get_string(key))
-    hashes.append((key, sha.hexdigest()))
+    hashes.append( ( key, upload.hash_mail(box.get_string(key)) ) )
   return hashes
 
 def main():
@@ -42,7 +40,7 @@ def main():
     if arg == '--hashes':
       i += 1
       allhashes = open(sys.argv[i], 'r').read()
-    if arg == '--tmp':
+    elif arg == '--tmp':
       i += 1
       # try to delete old temporary mailbox
       try: os.remove(sys.argv[i])
@@ -126,10 +124,10 @@ def main():
         upload.save_mail(docid, box.get_string(key))
         logging.shutdown()
         sys.exit(1)
+  box.close()
   
   #TODO detect sent mails
   
-  box.close()
   logging.shutdown()
   sys.exit(0)
 

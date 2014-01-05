@@ -9,6 +9,7 @@ not python 3
 * Support comments and encoded-word in parseaddr.py
   and convert encoded-word in email displayname to utf8
 * Check encoding on downloading and saving emails?
+* Add GPG signed and encrypted to autolabelling
 * Add license conforming lrparsing.py license
 * Documentation
 
