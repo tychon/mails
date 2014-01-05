@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # usage:
 #   l = Labeller(path='~/rules')
 #   l.check(metadata)

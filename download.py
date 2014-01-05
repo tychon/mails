@@ -12,6 +12,8 @@
 # NOTE: --exec args are run with shell=True, this is risky if you call
 #   untrusted programms!
 
+#TODO use common logging in main function
+
 import sys, os
 import common, logging
 import mailbox
