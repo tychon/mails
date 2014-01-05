@@ -3,8 +3,10 @@ not python 3
 
 ### TODO
 
-* write mail_view script for viewing inbox and searchresults easily
 * write module to load mails from Maildirs or mboxes
+* test view script
+
+* support --hashes options everywhere were stdin works too
 * enhance search with operators
 * write full text search indexing
 * Support comments and quoted strings in parseaddr.py
@@ -43,6 +45,9 @@ not python 3
   Every beginning of a line from stdin starting with hex chars is taken as a
   doc id and is downloaded. Add comments / more data separated with a whitespace
   after the hash, or start lines with whitespace or non hey char to ignore them.
+
+* read
+  Execute a command for every file in a mbox / Maildir
 
 * view
   Open a local mailbox and make stats. Then open mutt. When mutt exits, check
