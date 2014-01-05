@@ -3,10 +3,9 @@ not python 3
 
 ### TODO
 
-* rewrite function for parsing and uploading mail
-  ** write mechanism for adding labels automatically
 * write mail_view script for viewing inbox and searchresults easily
 * write module to load mails from Maildirs or mboxes
+* enhance search with operators
 * write full text search indexing
 * Support comments and quoted strings in parseaddr.py
 * Convert quoted-printable in subject and email displayname to utf8
@@ -24,14 +23,14 @@ not python 3
 * config
   Configurations for logs, the CouchDB connection and other things.
 
-* mail_upload
+* upload
   Parse and upload a given mail (extract metadata from header).
 
-* mail_search
+* search
   Search for mail hashes by metadata.
   Python function returns docs. Script prints list of hashes to stdout.
 
-* mail_download
+* download
   Download mails with given hashes read from stdin into
   ** mbox or
   ** Maildir or
@@ -41,7 +40,7 @@ not python 3
   doc id and is downloaded. Add comments / more data separated with a whitespace
   after the hash, or start lines with whitespace or non hey char to ignore them.
 
-* mail_keywords
+* keywords
   Search mails by keywords with extra index file not included in database for
   security reasons. So you can index you decryptet PGP Mails :-) and the index
   is saved locally on your computer.

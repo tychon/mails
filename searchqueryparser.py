@@ -3,7 +3,7 @@ import lrparsing
 from lrparsing import Keyword, Ref, Token
 
 class QueryParser(lrparsing.Grammar):
-  atom =  Token(re="FROM|TO|SINCE|BEFORE|LABEL") + Token(re="[^ ()]+|\"[^\"]*\"")
+  atom = Token(re="FROM|TO|SINCE|BEFORE|LABEL") + Token(re="[^ ()]+|\"[^\"]*\"")
   op = Ref('op')
   op = '(' + Keyword('AND', case=False) + op + op + ')' \
       | '(' + Keyword('OR', case=False) + op + op + ')' \
