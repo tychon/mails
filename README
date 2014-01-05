@@ -5,10 +5,12 @@ not python 3
 
 * enhance search with operators
 * write full text search indexing
-* Support comments and quoted strings in parseaddr.py
-* Convert quoted-printable in subject and email displayname to utf8
-* Check encoding on downloading and saving emails
+* unfold whitespace in header fields?
+* Support comments and encoded-word in parseaddr.py
+  and convert encoded-word in email displayname to utf8
+* Check encoding on downloading and saving emails?
 * Add license conforming lrparsing.py license
+* Documentation
 
 ### For use (not implemented ...yet)
 

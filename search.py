@@ -149,9 +149,7 @@ def main():
       i += 1
       before = sys.argv[i]
     else:
-      logging.getLogger('stderr').error("Uknown arg %s" % arg)
-      logging.shutdown()
-      sys.exit(1)
+      common.fatal("Uknown arg %s" % arg)
     i += 1
   res = search(hfrom, hto, since, before, labels, logger='stderr')
   for val in res: print val['_id']

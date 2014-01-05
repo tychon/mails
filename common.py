@@ -28,16 +28,16 @@ def logexception(type, value, tb):
   sys.exit(1)
 sys.excepthook = logexception
 
-# Write info and err msgs to stderr
+# Write info to stderr
 def info(msg):
   if type(msg) == str: sys.stderr.write(msg)
   else: sys.stderr.write(repr(msg))
   sys.stderr.write('\n')
-def err(msg):
-  if type(msg) == str: sys.stderr.write(msg)
-  else: sys.stderr.write(repr(msg))
-  sys.stderr.write('\n')
-  sys.stderr.flush()
+# Write message to logger 'stderr' and exit with code 1
+def fatal(msg):
+  if type(msg) == str: logging.getLogger('stderr').error(msg)
+  else: logging.getLogger('stderr').error(repr(msg))
+  logging.shutdown()
   sys.exit(1)
 
 re_date = re.compile(r'([^\(]*)\(')
@@ -60,4 +60,3 @@ def uniquify(seq):
   seen_add = seen.add
   return [ x for x in seq if x not in seen and not seen_add(x)]
 
-#TODO unfold whitespace

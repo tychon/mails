@@ -10,16 +10,12 @@ import mailbox
 def main():
   log = logging.getLogger('stderr')
   if len(sys.argv) != 4:
-    log.error("Not enough arguments. Give 3.")
-    logging.shutdown()
-    sys.exit(1)
+    common.fatal("Not enough arguments. Give 3.")
   
   if sys.argv[1] == 'mbox': box = mailbox.mbox(sys.argv[2], create=False)
   elif sys.argv[1] == 'Maildir': box = mailbox.Maildir(sys.argv[2])
   else:
-    log.error("Unknown arg 1: %s"%sys.argv[1])
-    logging.shutdown()
-    sys.exit(1)
+    common.fatal("Unknown arg 1: %s"%sys.argv[1])
   log.info("Number of mails: %d" % box.__len__())
   
   cmd = sys.argv[3]

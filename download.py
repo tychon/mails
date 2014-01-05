@@ -12,9 +12,7 @@
 # NOTE: --exec args are run with shell=True, this is risky if you call
 #   untrusted programms!
 
-#TODO use common logging in main function
-
-import sys, os
+import sys, os, traceback
 import common, logging
 import mailbox
 import re
@@ -44,6 +42,7 @@ def download(docid=None, box=None, cmd=None, stream=None, logger='none'):
   return r.text
 
 def main():
+  log = logging.getLogger('stderr')
   # open mailbox and read args
   box = cmd = None
   append = True
@@ -53,7 +52,8 @@ def main():
   while i < len(sys.argv):
     arg = sys.argv[i]
     if arg == '--override':
-      if i > 1: common.err("You should give --override as first argument!")
+      if i > 1:
+        common.fatal("You should give --override as first argument!")
       append = False
     elif arg == '--mbox':
       if box: err("Multiple mailboxes given.")
@@ -73,9 +73,7 @@ def main():
       i += 1
       allhashes = open(sys.argv[i], 'r').read()
     else:
-      logging.getLogger('stderr').error("Unknown arg %s"%arg)
-      logging.shutdown()
-      sys.exit(1)
+      common.fatal("Unknown arg %s"%arg)
     i += 1
   
   if allhashes == None:
@@ -85,15 +83,15 @@ def main():
   for count, line in enumerate(allhashes.splitlines(True)):
     mo = re_id.match(line)
     if not mo:
-      common.info("Ignoring line %d: %s" % (count, line))
+      log.info("Ignoring line %d: %s" % (count, line))
       continue
     docid = mo.group(1)
     if box == None and not cmd: stream = sys.stdout
     else: stream = None
     try:
       download(docid, box, cmd, stream, 'stderr')
-    except IOError as e:
-      common.info(str(e))
+    except IOError:
+      common.fatal(traceback.format_exc())
   
   if isinstance(box, mailbox.mbox): box.close()
 

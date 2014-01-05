@@ -61,14 +61,11 @@ def main():
     elif arg == '--upload':
       doupload = True
     else:
-      log.error("Unknown arg %s"%arg)
-      logging.shutdown()
-      sys.exit(1)
+      common.fatal("Unknown arg %s"%arg)
     i += 1
   
   if box == None:
-    log.error("No temporary mailbox given.")
-    sys.exit(1)
+    common.fatal("No temporary mailbox given.")
   
   ids = []
   # download mails
@@ -76,16 +73,14 @@ def main():
   for count, line in enumerate(allhashes.splitlines(True)):
     mo = re_id.match(line)
     if mo == None:
-      log.error("Ignoring line %d: %s" % (count+1, line))
+      log.info("Ignoring line %d: %s" % (count+1, line))
       continue
     docid = mo.group(1)
     try:
       download.download(docid, box=box, logger='stderr')
       ids.append(docid)
     except IOError as e:
-      elog.error("Couldnt download mail %s\n  %s" % (docid, traceback.format_exc(e)))
-      logging.shutdown()
-      sys.exit(1)
+      common.fatal("Couldnt download mail %s\n  %s" % (docid, traceback.format_exc(e)))
   
   hashes_before = hash_mails(box)
   box.close()
@@ -96,17 +91,14 @@ def main():
   retval = subprocess.call(cmd, shell=True)
   log.info("Mutt returned with status %d."%retval)
   if retval:
-    elog.error("Mutt error %d. EXIT."%retval)
-    logging.shutdown()
-    sys.exit(1)
+    common.fatal("Mutt error %d. EXIT. No changes to DB"%retval)
   
   box = mailbox.mbox(boxpath)
   # detect changes in mbox
   hashes_after = hash_mails(box)
   
   if len(hashes_before) != len(hashes_after) or len(hashes_before) != len(ids):
-    log.error("Some mails were deleted. Aborting. No changes made to DB.")
-    sys.exit(1)
+    common.fatal("Some mails were deleted. Aborting. No changes made to DB.")
   
   # filter differing hashes
   changed = filter(lambda pair: pair[1] != pair[2], zip(ids, hashes_before, hashes_after))
