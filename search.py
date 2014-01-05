@@ -7,7 +7,6 @@ import config
 
 # Returns a list of documents matching the search criteria.
 # May return an empty list, but not None.
-#TODO support doc.keywords
 def search(hfrom=None, hto=None, since=None, before=None, labels=[], logger='none'):
   log = logging.getLogger(logger)
   res = None
@@ -81,9 +80,9 @@ def search(hfrom=None, hto=None, since=None, before=None, labels=[], logger='non
       res = map(lambda x: x['value'], res)
     
     if len(res) == 0:
-      log.info("No results for %s <= date", since)
+      log.info("No results for %s* <= date", since)
       return []
-    log.info("%s results for %s <= date", len(res), since)
+    log.info("%s results for %s* <= date", len(res), since)
   elif before:
     if res:
       res = filter(lambda doc: doc.get('date', '\u9999') <= beforecmp, res)
@@ -98,9 +97,9 @@ def search(hfrom=None, hto=None, since=None, before=None, labels=[], logger='non
       res = map(lambda x: x['value'], res)
     
     if len(res) == 0:
-      log.info("No results for date <= %s", before)
+      log.info("No results for date <= %s*", before)
       return []
-    log.info("%s results for date <= %s", len(res), before)
+    log.info("%s results for date <= %s*", len(res), before)
   
   # search labels
   if labels and len(labels):
@@ -127,7 +126,6 @@ def search(hfrom=None, hto=None, since=None, before=None, labels=[], logger='non
   return res
 
 def main():
-  sys.stderr.write(repr(sys.argv))
   # parse args
   hfrom = hto = None
   since = before = None

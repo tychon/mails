@@ -10,6 +10,7 @@ not python 3
 * Support comments and quoted strings in parseaddr.py
 * Convert quoted-printable in subject and email displayname to utf8
 * Check encoding on downloading and saving emails
+* Add license conforming lrparsing.py license
 
 ### For use (not implemented ...yet)
 
