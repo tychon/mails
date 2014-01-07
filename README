@@ -4,8 +4,6 @@ not python 3
 ####
 TODO
 
-* support some other date formats
-
 * enhance search with operators
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling

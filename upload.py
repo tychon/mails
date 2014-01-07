@@ -9,7 +9,7 @@
 import sys, os, random
 import common, logging, traceback
 import email.parser, email.message, email.utils, itertools
-import hashlib, time
+import hashlib, time, calendar
 import requests, json
 
 import labels
@@ -50,8 +50,12 @@ def parsemail(mail, logger='none'):
   # parse date and convert it to standard format in UTC
   if message.get('Date', None):
     try:
-      # parse mail send time and convert it to UTC
-      data['date'] = common.convert_from_maildate(message.get('Date'))
+      # guesses format and parses 10-tuple
+      parsedtime = email.utils.parsedate_tz(message.get('Date'))
+      # seconds since epoch
+      utc_timestamp = calendar.timegm(parsedtime[0:9])-parsedtime[9]
+      # formatted
+      data['date'] = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(utc_timestamp))
       log.info("Date: %s", data['date'])
     except Exception as e:
       raise MailParserException("Could not convert %s to YYYY-MM-DD hh:mm:ss\n  %s" % (message.get('Date'), str(e)))
