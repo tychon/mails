@@ -79,7 +79,7 @@ def parsemail(mail, logger='none'):
   return data
 
 # Raises an IOError if something goes wrong.
-def upload(docid, metadata, mail=None, override=False, logger='none'):
+def upload(docid, metadata, mail=None, override=False, preserve=True, logger='none'):
   log = logging.getLogger(logger)
   # Retrieve rev if override is enabled
   oldrevision = ''
@@ -93,8 +93,31 @@ def upload(docid, metadata, mail=None, override=False, logger='none'):
     if rev != '':
       oldrevision = '?rev='+rev
       # preserve attachment
-      print r.text
-      metadata['_attachments'] = json.loads(r.text)['_attachments']
+      oldmetad = json.loads(r.text)
+      metadata['_attachments'] = oldmetad['_attachments']
+      if preserve:
+        # preserve unread status
+        if 'unread' in oldmetad['labels']:
+          # add 'unread' to labels list
+          if 'unread' not in metadata['labels']:
+            metadata['labels'].append('unread')
+            log.info("preserving label 'unread' (now present)")
+        else:
+          # remove 'unread' from labels list
+          prelen = len(metadata['labels'])
+          metadata['labels'] = [x for x in metadata['labels'] if x != 'unread']
+          if prelen != len(metadata['labels']): log.info("preserving label 'unread' (now not present)")
+        # preserve sent flag
+        if 'sent' in oldmetad['labels']:
+          # add 'sent' to labels list
+          if 'sent' not in metadata['labels']:
+            metadata['labels'].append('sent')
+            log.info("preserving label 'sent' (now present)")
+            if prelen != len(metadata['labels']): log.info("preserving label 'sent' (now not present)")
+        else:
+          # remove 'sent' from labels list
+          prelen = len(metadata['labels'])
+          metadata['labels'] = [x for x in metadata['labels'] if x != 'sent']
     else: override=False
   
   if mail == None and override == False:
@@ -144,7 +167,7 @@ def main():
   
   try:
     data = parsemail(mail, logger='stderr')
-    upload(hexdigest, data, mail, "--override" in sys.argv, 'stderr')
+    upload(hexdigest, data, mail, "--override" in sys.argv, "--nopreserve" not in sys.argv, 'stderr')
   except:
     elog.error("Exception while parsing or uploading mail:\n %s" % traceback.format_exc())
     save_mail(hexdigest, mail)
