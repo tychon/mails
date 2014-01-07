@@ -8,11 +8,11 @@
 
 import sys, os, random
 import common, logging, traceback
-import email.parser, email.message
+import email.parser, email.message, email.utils, itertools
 import hashlib, time
 import requests, json
 
-import parseaddr, labels
+import labels
 # Import information about couchdb 
 import config
 
@@ -36,20 +36,18 @@ def parsemail(mail, logger='none'):
   if len(message.defects) != 0:
     raise MailParserException("Parser signaled defect:\n  %s" % (str(message.defects)))
   
-  if message.get('From', None):
-    try:
-      data['from'] = froms = common.uniquify(parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('From'))))
-      log.info("From: %s", ' '.join(froms))
-    except parseaddr.AddrParserException as e:
-      raise MailParserException("Couldn't parse address in From field list.\n  %s\n  From: %s" % (str(e), message.get('From')))
+  # encoded word is not decoded here, because it only should appear in the
+  #   display name that is discarded by the last map function
+  # parse from and sender addresses
+  addresses = itertools.chain(*(message.get_all(field) for field in ('from', 'sender') if message.has_key(field)))
+  data['from'] = map(lambda adrs: adrs[1], set(email.utils.getaddresses(addresses)))
+  log.info("From: %s"%(' '.join(data['from'])))
+  # parse recipient addresses
+  addresses = itertools.chain(*(message.get_all(field) for field in ('to', 'cc') if message.has_key(field)))
+  data['to'] = map(lambda adrs: adrs[1], set(email.utils.getaddresses(addresses)))
+  log.info("To: %s"%(' '.join(data['to'])))
   
-  if message.get('To', None):
-    try:
-      data['to'] = tos = common.uniquify(parseaddr.extract_addresses(parseaddr.parse_address_list(message.get('To'))))
-      log.info("To: %s", ' '.join(tos))
-    except parseaddr.AddrParserException as e:
-      raise MailParserException("Couldn't parse address in To field list.\n  %s\n  To: %s" % (str(e), message.get('To')))
-  
+  # parse date and convert it to standard format in UTC
   if message.get('Date', None):
     try:
       # parse mail send time and convert it to UTC

@@ -4,16 +4,17 @@ not python 3
 ####
 TODO
 
-* unfold whitespace in header fields?
-* Support comments and encoded-word in parseaddr.py
-  and convert encoded-word in email displayname to utf8
-http://stackoverflow.com/questions/4157899/get-python-getaddresses-to-decode-encoded-word-encoding
+* support some other date formats
 
 * enhance search with operators
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
 * Add license conforming lrparsing.py license
 * Documentation
+
+* Contacts book
+  For decoding display names see:
+  http://stackoverflow.com/questions/4157899/get-python-getaddresses-to-decode-encoded-word-encoding
 
 ##########
 Content
