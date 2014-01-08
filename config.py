@@ -1,3 +1,7 @@
+#####################
+# Important settings!
+#####################
+# Set these right to prevent loosing data!
 
 # File to write error log to
 # No expansion of '~' supported here!
@@ -8,18 +12,27 @@ errorlog = 'error.log'
 # They will have a 21 chars file name:
 #   10 chars beginning of hash, underscore, 10 chars hex randomness.
 # Be sure this directory exists and is writable!
+# '~' expansion allowed
 backupdir = '~/.mail_backup/'
 
 # URL to your mail database
+# SSL is supported, but certificates are not verified.
 couchdb_url = 'http://localhost:5984/mail/'
 
+# The the document id of your design document with the views for searching.
+# Don't forget a trailing slash.
+design_doc = '_design/post/'
+
+### If you want to disable one of the following features, do not comment the
+# variables out, but set them to None.
+
 # Authentication data to be sent to couchdb.
-# Sent in clear text! Use SSL! or do it only on localhost.
+# Sent in clear text! Use SSL! or do it only on trusted connections.
 couchdb_auth = None
 # example:
 # couchdb_auth = ('username', '1234')
 
-design_doc = '_design/post/'
-
+# Path to file with rules for autolabelling.
+# Check its sanity! (see README section Labelling)
 autolabels = 'autolabels'
 
