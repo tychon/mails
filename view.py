@@ -76,7 +76,7 @@ def main():
   else: muttrc = ''
   
   ids = []
-  # download mails
+  # read hashes
   re_id = re.compile('([0-9A-Fa-f]+)\s+')
   for count, line in enumerate(allhashes.splitlines(True)):
     mo = re_id.match(line)
@@ -84,13 +84,17 @@ def main():
       log.info("Ignoring line %d: %s" % (count+1, line))
       continue
     docid = mo.group(1)
-    try:
-      download.download(docid, box=box, logger='stderr')
-      ids.append(docid)
+    ids.append(docid)
+  
+  # download docs
+  log.info("Downloading %d mails."%len(ids))
+  for doc in ids:
+    try: download.download(docid, box=box, logger='stderr')
     except IOError as e:
       common.fatal("Couldnt download mail %s\n  %s" % (docid, traceback.format_exc(e)))
   
-  print ids
+  if len(ids) != box.__len__():
+    common.fatal("Something strange happened. Not enough mails in mailbox!")
   
   hashes_before = hash_mails(box)
   box.close()
@@ -114,7 +118,6 @@ def main():
   changed = filter(lambda pair: pair[1] != pair[2], zip(ids, hashes_before, hashes_after))
   # get (mbox key, docid) only
   changed = map(lambda pair: (pair[1][0], pair[0]), changed)
-  print changed
   log.info("%d mails changed."%len(changed))
   
   # write changed mails file

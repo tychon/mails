@@ -25,20 +25,20 @@ def download(docid=None, box=None, cmd=None, stream=None, logger='none'):
   log = logging.getLogger(logger)
   r = requests.get(config.couchdb_url+docid+'/mail'
           , auth=config.couchdb_auth, verify=False)
-  log.info((r.status_code, r.url))
+  log.debug((r.status_code, r.url))
   mail = r.text.encode('utf8')
   if r.status_code == 200:
     if cmd != None:
       process = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True)
       process.communicate(mail)
-      log.info("%s\n  returned with code %d" % (cmd, process.wait()))
+      log.debug("%s\n  returned with code %d" % (cmd, process.wait()))
     if box != None:
       key = box.add(mail)
-      log.info("Mail saved under key %s" % key)
+      log.debug("Mail saved under key %s" % key)
     if stream != None:
       stream.write(mail)
   else:
-    raise IOError("Request failed, status code: %d\n  URL %s\n  RESP: %s" % (r.status_code, r.url, r.text))
+    raise IOError("Request failed, status code: %d\n  %s\n  RESP: %s" % (r.status_code, r.url, r.text))
   return r.text
 
 def main():

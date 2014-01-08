@@ -86,7 +86,7 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
   if override:
     r = requests.get(config.couchdb_url+docid
         , auth=config.couchdb_auth, verify=False)
-    log.info(('GET', r.status_code, r.url))
+    log.debug(('GET', r.status_code, r.url))
     if r.status_code != 200:
       raise IOError("Query failed, code %d:\n  %s\n  %s" % (r.status_code, r.url, r.text))
     rev = json.loads(r.headers.get('etag', '""'))
@@ -128,7 +128,7 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
   # verify=False is for untrusted SSL certificates (you created on your own)
   r = requests.put(config.couchdb_url+docid+oldrevision
       , auth=config.couchdb_auth, verify=False, data=json.dumps(metadata))
-  log.info(('PUT', r.status_code, r.url))
+  log.debug(('PUT', r.status_code, r.url))
   respjson = json.loads(r.text)
   if not respjson.get('ok', False):
     raise IOError("Could not upload metadata\n  %s\n  CouchDB response code %d, text: %s" % (r.url, r.status_code, r.text))
@@ -138,7 +138,7 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
     r = requests.put(config.couchdb_url+docid+'/mail?rev='+respjson.get('rev')
         , headers={'content-type':'text/plain'}
         , auth=config.couchdb_auth, verify=False, data=mail)
-    log.info(('PUT', r.status_code, r.url))
+    log.debug(('PUT', r.status_code, r.url))
     respjson = json.loads(r.text)
     if not respjson.get('ok', False):
       raise IOError("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  %s\n  CouchDB response code %d, text: %s" % (r.url, r.status_code, r.text))
