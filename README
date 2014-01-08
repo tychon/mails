@@ -8,6 +8,8 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
+* ! implement NOT operator in search
+* support --search QUERY argument in view.py
 * make ssl verification optional (by fingerprint?)
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
