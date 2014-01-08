@@ -8,7 +8,6 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
-* enhance search with operators
 * make ssl verification optional (by fingerprint?)
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
