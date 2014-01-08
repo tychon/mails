@@ -34,5 +34,14 @@ def reformat(ast):
   def cb_op(name, operands): return '(' + name + ' ' + ' '.join(operands) + ')'
   return walk_ast_depth_first(ast, cb_atom, cb_op)
 
+# Format query with many whitespaces in a tree.
+def formatTree(ast):
+  def cb_atom(name, tok):
+    return name+' '+tok
+  def cb_op(name, operands):
+    return ('('+name+'\n'
+        +'\n'.join(['  '+op.replace('\n', '\n  ') for op in operands])+')')
+  return walk_ast_depth_first(ast, cb_atom, cb_op)
+
 def parse(input): return QueryParser.parse(input)
 

@@ -1,10 +1,15 @@
 
 not python 3
 
+Special prerequisite: lrparsing module:
+    https://pypi.python.org/pypi/lrparsing
+    http://ace-host.stuart.id.au/russell/files/lrparsing/doc/html/
+
 ####
 TODO
 
 * enhance search with operators
+* make ssl verification optional (by fingerprint?)
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
 * check document.type == 'mail'
@@ -60,7 +65,6 @@ Most of the executable scripts are also modules you can include.
 
 * lrparsing
   Module by Russell Stuart under GPLv2, or any later version.
-
 
 ########
 Database
