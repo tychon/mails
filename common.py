@@ -34,9 +34,9 @@ def info(msg):
   else: sys.stderr.write(repr(msg))
   sys.stderr.write('\n')
 # Write message to logger 'stderr' and exit with code 1
-def fatal(msg):
-  if type(msg) == str: logging.getLogger('stderr').error(msg)
-  else: logging.getLogger('stderr').error(repr(msg))
+def fatal(msg, logger='stderr'):
+  if type(msg) == str: logging.getLogger(logger).error(msg)
+  else: logging.getLogger(logger).error(repr(msg))
   logging.shutdown()
   sys.exit(1)
 
