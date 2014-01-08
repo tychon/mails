@@ -121,7 +121,7 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
     else: override=False
   
   if mail == None and override == False:
-    raise IOError("Could not write metadata without real mail as attachment.")
+    raise IOError("Can not write metadata without real mail as attachment.")
   if override: log.info("Overriding old mail %s", docid)
   
   # upload meta data
@@ -131,7 +131,7 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
   log.info(('PUT', r.status_code, r.url))
   respjson = json.loads(r.text)
   if not respjson.get('ok', False):
-    raise IOError("Could not upload metadata\n  doc._id: %s,\n  CouchDB response code %d, text: %s" % (docid, r.status_code, r.text))
+    raise IOError("Could not upload metadata\n  %s\n  CouchDB response code %d, text: %s" % (r.url, r.status_code, r.text))
   
   # upload original mail as attachment
   if not override and mail != None:
@@ -141,7 +141,7 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
     log.info(('PUT', r.status_code, r.url))
     respjson = json.loads(r.text)
     if not respjson.get('ok', False):
-      raise IOError("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  doc._id: %s,\n  CouchDB response code %d, text: %s" % (docid, r.status_code, r.text))
+      raise IOError("Could not upload mail attachment\n  There is a mail without original message in your couchdb!\n  %s\n  CouchDB response code %d, text: %s" % (r.url, r.status_code, r.text))
 
 def hash_mail(mail):
   sha = hashlib.new('sha256')

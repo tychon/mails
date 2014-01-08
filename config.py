@@ -36,3 +36,7 @@ couchdb_auth = None
 # Check its sanity! (see README section Labelling)
 autolabels = 'autolabels'
 
+muttrc = None
+temp_mailbox = 'tmpbox'
+sent_mailbox = None
+

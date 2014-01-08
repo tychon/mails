@@ -27,10 +27,14 @@ def main():
   log = logging.getLogger('stderr')
   elog = logging.getLogger('view')
   
+  # here is the contents of the hashes file saved,
+  # if its given with --hashes
   allhashes = ''
-  muttrc = ''
-  boxpath = box = None
-  sentpath = sentbox = None
+  
+  # load defaults
+  muttrc = config.muttrc
+  boxpath = config.temp_mailbox
+  sentpath = config.sent_mailbox
   changedhashesfile = None
   doupload = False
   
@@ -42,14 +46,10 @@ def main():
       allhashes = open(sys.argv[i], 'r').read()
     elif arg == '--tmp':
       i += 1
-      # try to delete old temporary mailbox
-      try: os.remove(sys.argv[i])
-      except OSError: pass
-      box = mailbox.mbox(sys.argv[i])
       boxpath = sys.argv[i]
     elif arg == '--muttrc':
       i += 1
-      muttrc = '-F '+sys.argv[i]
+      muttrc = sys.argv[i]
     elif arg == '--sent':
       i += 1
       sentpath = sys.argv[i]
@@ -62,8 +62,18 @@ def main():
       common.fatal("Unknown arg %s"%arg)
     i += 1
   
-  if box == None:
+  # open temporary mailbox
+  if boxpath == None:
     common.fatal("No temporary mailbox given.")
+  boxpath = os.path.expanduser(boxpath)
+  log.debug("Using temporary mailbox: %s"%boxpath)
+  # try to delete old temporary mailbox
+  try: os.remove(boxpath)
+  except OSError: pass
+  box = mailbox.mbox(boxpath)
+  
+  if muttrc: muttrc = '-F '+muttrc
+  else: muttrc = ''
   
   ids = []
   # download mails
@@ -79,6 +89,8 @@ def main():
       ids.append(docid)
     except IOError as e:
       common.fatal("Couldnt download mail %s\n  %s" % (docid, traceback.format_exc(e)))
+  
+  print ids
   
   hashes_before = hash_mails(box)
   box.close()
@@ -96,7 +108,7 @@ def main():
   hashes_after = hash_mails(box)
   
   if len(hashes_before) != len(hashes_after) or len(hashes_before) != len(ids):
-    common.fatal("Some mails were deleted. Aborting. No changes made to DB.")
+    common.fatal("Some mails were deleted (or added). Aborting. No changes made to DB.")
   
   # filter differing hashes
   changed = filter(lambda pair: pair[1] != pair[2], zip(ids, hashes_before, hashes_after))
@@ -129,6 +141,8 @@ def main():
   # upload sent mails
   if sentpath:
     # open mailbox
+    sentpath = os.path.expanduser(sentpath)
+    log.debug("Opening sent mailbox: %s"%sentpath)
     try:
       box = mailbox.mbox(sentpath, create=False)
     except mailbox.NoSuchMailboxError as e:
