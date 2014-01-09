@@ -10,6 +10,8 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
+* set logging level and default logger in config
+* new executable: reprocess.py
 * support --search QUERY argument in view.py
 * make ssl verification optional (by fingerprint?)
 * write full text search indexing
@@ -52,6 +54,9 @@ Most of the executable scripts are also modules you can include.
   closed.
 * conflict
   Solve conflicts by selecting one winner basing on metadata.
+* reprocess
+  Reprocess all or selection of documents in database to correct labels or
+  keyword index.
 
 ## Modules only
 * config

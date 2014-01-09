@@ -18,21 +18,14 @@ def search(query, logger='none', verbose=False):
   def cb_atom(name, tok, line, col):
     tok = tok.lower()
     if name == 'VIEW':
-      r = requests.get("%s%s_view/%s"%(config.couchdb_url, config.design_doc, tok)
-              , auth=config.couchdb_auth, verify=False)
+      _, res = common.get_view(tok, "line %d col %d: Could not GET view."%(line, col), logger)
+      res = common.uniquify(res)
     else:
-      r = requests.get('%s%s_view/%s?startkey="%s"&endkey="%s\u9999"'
-              %(config.couchdb_url, config.design_doc, name.lower(), tok, tok)
-              , auth=config.couchdb_auth, verify=False)
-    log.debug((r.status_code, r.url))
-    if not r.status_code == 200:
-      raise IOError("line %d col %d: %s %s: Query failed, code %d:\n  %s\n  %s"
-          % (line, col, name, tok, r.status_code, r.url, r.text))
-    res = json.loads(r.text)['rows']
+      _, res = common.get_view('%s?startkey="%s"&endkey="%s\u9999"'
+                     %(name.lower(), tok, tok)
+                   , "line %d col %d: Could not GET view."%(line, col), logger)
     if verbose:
-      for row in res: print '   ',row['id'],row['key']
-    res = map(lambda x: x['id'], res)
-    if name == 'VIEW': res = common.uniquify(res)
+      for row in res: print '   ',row
     if len(res) == 0: log.info("%s %s (no results)", name, tok)
     else: log.info("%s %s (%d results)", name, tok, len(res))
     return res
@@ -46,16 +39,8 @@ def search(query, logger='none', verbose=False):
       for doc in results[1]:
         if doc not in res: res.append(doc)
     elif name == 'NOT':
-      res = []
       # retrieve all documents of type mail
-      r = requests.get("%s%s_view/all_mails"%(config.couchdb_url, config.design_doc)
-            , auth=config.couchdb_auth, verify=False)
-      log.debug((r.status_code, r.url))
-      if not r.status_code == 200:
-        raise IOError("line %d col %d: %s %s: Query failed, code %d:\n  %s\n  %s"
-            % (line, col, name, tok, r.status_code, r.url, r.text))
-      res = json.loads(r.text)['rows']
-      res = [x['id'] for x in res]
+      _, res = common.get_view('all_mails', "line %d col %d: Could not GET view."%(line, col), logger)
       # do NOT conjunction
       res = [doc for doc in res if doc not in results[0]]
     

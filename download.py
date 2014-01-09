@@ -23,23 +23,17 @@ import config
 
 def download(docid=None, box=None, cmd=None, stream=None, logger='none'):
   log = logging.getLogger(logger)
-  r = requests.get(config.couchdb_url+docid+'/mail'
-          , auth=config.couchdb_auth, verify=False)
-  log.debug((r.status_code, r.url))
-  mail = r.text.encode('utf8')
-  if r.status_code == 200:
-    if cmd != None:
-      process = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True)
-      process.communicate(mail)
-      log.debug("%s\n  returned with code %d" % (cmd, process.wait()))
-    if box != None:
-      key = box.add(mail)
-      log.debug("Mail saved under key %s" % key)
-    if stream != None:
-      stream.write(mail)
-  else:
-    raise IOError("Request failed, status code: %d\n  %s\n  RESP: %s" % (r.status_code, r.url, r.text))
-  return r.text
+  mail = common.get_doc(docid+'/mail', logger=logger, parsejson=False)
+  if cmd != None:
+    process = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True)
+    process.communicate(mail)
+    log.debug("%s\n  returned with code %d" % (cmd, process.wait()))
+  if box != None:
+    key = box.add(mail.encode('utf8'))
+    log.debug("Mail saved under key %s" % key)
+  if stream != None:
+    stream.write(mail)
+  return mail
 
 def main():
   log = logging.getLogger('stderr')

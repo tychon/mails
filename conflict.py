@@ -24,15 +24,7 @@ def main():
   docids = []
   if docid: docids = [docid]
   else:
-    # download all document ids with conflicts
-    r = requests.get("%s%s_view/conflicts"%(config.couchdb_url, config.design_doc)
-            , auth=config.couchdb_auth, verify=False)
-    log.debug((r.status_code, r.url))
-    if not r.status_code == 200:
-      raise IOError("Query failed, code %d:\n  %s\n  %s"
-          %(r.status_code, r.url, r.text))
-    res = json.loads(r.text)['rows']
-    docids = map(lambda x: x['id'], res)
+    _, docids = common.get_view('conflicts', logger='stderr')
   
   log.info("Number of conflicts to solve: %d"%len(docids))
   
@@ -41,22 +33,12 @@ def main():
     ## download all revisions of document:
     revs = []
     # couchdbs deterministic winnning revision:
-    r = requests.get("%s%s?conflicts=true"%(config.couchdb_url, docid)
-            , auth=config.couchdb_auth, verify=False)
-    log.debug((r.status_code, r.url))
-    if not r.status_code == 200:
-      raise IOError("Query failed, code %d:\n  %s\n  %s"
-          %(r.status_code, r.url, r.text))
-    winningdoc = json.loads(r.text)
+    winningdoc = common.get_doc("%s?conflicts=true"%docid, logger='stderr')
     revs.append(winningdoc)
+    # other revisions
     for rev in winningdoc['_conflicts']:
-      r = requests.get("%s%s?rev=%s"%(config.couchdb_url, docid, rev)
-              , auth=config.couchdb_auth, verify=False)
-      log.debug((r.status_code, r.url))
-      if not r.status_code == 200:
-        raise IOError("Query failed, code %d:\n  %s\n  %s"
-            %(r.status_code, r.url, r.text))
-      revs.append(json.loads(r.text))
+      doc = common.get_doc("%s?rev=%s"%(docid, rev), logger='stderr')
+      revs.append(doc)
     log.info("Revisions: %d"%len(revs))
     ## print revisions
     for revnum, rev in enumerate(revs):

@@ -89,7 +89,7 @@ def main():
   # download docs
   log.info("Downloading %d mails."%len(ids))
   for doc in ids:
-    try: download.download(docid, box=box, logger='stderr')
+    try: download.download(doc, box=box, logger='stderr')
     except IOError as e:
       common.fatal("Couldnt download mail %s\n  %s" % (docid, traceback.format_exc(e)))
   
@@ -118,7 +118,7 @@ def main():
   changed = filter(lambda pair: pair[1] != pair[2], zip(ids, hashes_before, hashes_after))
   # get (mbox key, docid) only
   changed = map(lambda pair: (pair[1][0], pair[0]), changed)
-  log.info("%d mails changed."%len(changed))
+  log.info("%d mails changed.\n"%len(changed))
   
   # write changed mails file
   if changedhashesfile:
@@ -133,7 +133,7 @@ def main():
     for key, docid in changed:
       try:
         mdata = upload.parsemail(box.get_string(key), logger='stderr')
-        upload.upload(docid, mdata, override=True, preserve=False, logger='stderr')
+        upload.upload(docid, mdata, override=True, preserveread=False, logger='stderr')
       except:
         elog.error("Exception while parsing or uploading mail:\n %s" % traceback.format_exc())
         upload.save_mail(docid, box.get_string(key))

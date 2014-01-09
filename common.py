@@ -1,11 +1,6 @@
 
-import sys
-import logging
-import traceback
-import time
-import datetime
-import re
-
+import sys, logging, traceback
+import requests, json
 import config
 
 #### globally setup logging
@@ -47,4 +42,29 @@ def uniquify(seq):
   seen = set()
   seen_add = seen.add
   return [ x for x in seq if x not in seen and not seen_add(x)]
+
+#################
+# requests helper
+
+def get_doc(docid, errmsg='', logger='none', parsejson=True):
+  log = logging.getLogger(logger)
+  r = requests.get("%s%s"%(config.couchdb_url, docid)
+          , auth=config.couchdb_auth, verify=False)
+  log.debug(('GET', r.status_code, r.url))
+  if not r.status_code == 200:
+    raise IOError("%s\nHTTP code %d:\n%s\n%s"
+        %(errmsg, r.status_code, r.url, r.text))
+  if parsejson: return json.loads(r.text)
+  else: return r.text
+
+def get_view(viewname, errmsg='', logger='none'):
+  log = logging.getLogger(logger)
+  r = requests.get('%s%s_view/%s'%(config.couchdb_url, config.design_doc, viewname)
+          , auth=config.couchdb_auth, verify=False)
+  log.debug(('GET', r.status_code, r.url))
+  if not r.status_code == 200:
+    raise IOError("%s\nHTTP code %d:\n%s\n%s"
+        % (errmsg, r.status_code, r.url, r.text))
+  res = json.loads(r.text)
+  return (res['total_rows'], [x['id'] for x in res['rows']])
 
