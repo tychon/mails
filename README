@@ -1,25 +1,26 @@
 
-not python 3
+This project is NOT in Python 3
+This file is NOT in markdown :D
 
 Special prerequisite: lrparsing module:
     https://pypi.python.org/pypi/lrparsing
     http://ace-host.stuart.id.au/russell/files/lrparsing/doc/html/
 
+
 ####
 TODO
 
-* support resolving conflicts
 * support --search QUERY argument in view.py
 * make ssl verification optional (by fingerprint?)
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
-* check document.type == 'mail'
 * Add license conforming lrparsing.py license
 * Documentation
 
 * Contacts book
   For decoding display names see:
   http://stackoverflow.com/questions/4157899/get-python-getaddresses-to-decode-encoded-word-encoding
+
 
 ##########
 Content
@@ -49,6 +50,8 @@ Most of the executable scripts are also modules you can include.
 * view
   Start mutt for local mailbox and upload metadata of changed mails when mutt
   closed.
+* conflict
+  Solve conflicts by selecting one winner basing on metadata.
 
 ## Modules only
 * config
