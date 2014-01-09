@@ -17,9 +17,13 @@ def search(query, logger='none', verbose=False):
   
   def cb_atom(name, tok, line, col):
     tok = tok.lower()
-    r = requests.get(config.couchdb_url+config.design_doc
-            +('_view/%s?startkey="%s"&endkey="%s\u9999"' % (name.lower(), tok, tok))
-            , auth=config.couchdb_auth, verify=False)
+    if name == 'VIEW':
+      r = requests.get("%s%s_view/%s"%(config.couchdb_url, config.design_doc, tok)
+              , auth=config.couchdb_auth, verify=False)
+    else:
+      r = requests.get('%s%s_view/%s?startkey="%s"&endkey="%s\u9999"'
+              %(config.couchdb_url, config.design_doc, name.lower(), tok, tok)
+              , auth=config.couchdb_auth, verify=False)
     log.debug((r.status_code, r.url))
     if not r.status_code == 200:
       raise IOError("line %d col %d: %s %s: Query failed, code %d:\n  %s\n  %s"
@@ -28,8 +32,9 @@ def search(query, logger='none', verbose=False):
     if verbose:
       for row in res: print '   ',row['id'],row['key']
     res = map(lambda x: x['id'], res)
-    if len(res) == 0: log.info("%s %s* (no results)", name, tok)
-    else: log.info("%s %s* (%d results)", name, tok, len(res))
+    if name == 'VIEW': res = common.uniquify(res)
+    if len(res) == 0: log.info("%s %s (no results)", name, tok)
+    else: log.info("%s %s (%d results)", name, tok, len(res))
     return res
   def cb_op(name, results, line, col, ast):
     if name == 'AND':
