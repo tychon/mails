@@ -79,7 +79,7 @@ def parsemail(mail, logger='none'):
   return data
 
 # Raises an IOError if something goes wrong.
-def upload(docid, metadata, mail=None, override=False, preserve=True, logger='none'):
+def upload(docid, metadata, mail=None, override=False, preserveread=True, logger='none', dontpreservesent=False):
   log = logging.getLogger(logger)
   # Retrieve rev if override is enabled
   oldrevision = ''
@@ -95,7 +95,7 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
       # preserve attachment
       oldmetad = json.loads(r.text)
       metadata['_attachments'] = oldmetad['_attachments']
-      if preserve:
+      if preserveread:
         # preserve unread status
         if 'unread' in oldmetad['labels']:
           # add 'unread' to labels list
@@ -107,7 +107,8 @@ def upload(docid, metadata, mail=None, override=False, preserve=True, logger='no
           prelen = len(metadata['labels'])
           metadata['labels'] = [x for x in metadata['labels'] if x != 'unread']
           if prelen != len(metadata['labels']): log.info("preserving label 'unread' (now not present)")
-        # preserve sent flag
+      # preserve sent flag
+      if dontpreservesent:
         if 'sent' in oldmetad['labels']:
           # add 'sent' to labels list
           if 'sent' not in metadata['labels']:

@@ -133,7 +133,7 @@ def main():
     for key, docid in changed:
       try:
         mdata = upload.parsemail(box.get_string(key), logger='stderr')
-        upload.upload(docid, mdata, override=True, logger='stderr')
+        upload.upload(docid, mdata, override=True, preserve=False, logger='stderr')
       except:
         elog.error("Exception while parsing or uploading mail:\n %s" % traceback.format_exc())
         upload.save_mail(docid, box.get_string(key))
