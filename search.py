@@ -42,7 +42,18 @@ def search(query, logger='none', verbose=False):
         if doc not in res: res.append(doc)
     elif name == 'NOT':
       res = []
-      pass #TODO don't forget me here ... lying helpless in my own blood ...
+      # retrieve all documents of type mail
+      r = requests.get("%s%s_view/all_mails"%(config.couchdb_url, config.design_doc)
+            , auth=config.couchdb_auth, verify=False)
+      log.debug((r.status_code, r.url))
+      if not r.status_code == 200:
+        raise IOError("line %d col %d: %s %s: Query failed, code %d:\n  %s\n  %s"
+            % (line, col, name, tok, r.status_code, r.url, r.text))
+      res = json.loads(r.text)['rows']
+      res = [x['id'] for x in res]
+      # do NOT conjunction
+      res = [doc for doc in res if doc not in results[0]]
+    
     if len(res) == 0: log.info("%s no results", sqp.reformat(ast))
     else: log.info("%s %d results", sqp.reformat(ast), len(res))
     if verbose:

@@ -17,6 +17,7 @@ backupdir = '~/.mail_backup/'
 
 # URL to your mail database
 # SSL is supported, but certificates are not verified.
+# Don't forget a trailing slash.
 couchdb_url = 'http://localhost:5984/mail/'
 
 # The the document id of your design document with the views for searching.

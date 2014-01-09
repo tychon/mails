@@ -8,7 +8,8 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
-* ! implement NOT operator in search
+* support resolving conflicts
+* add VIEW keyword in search grammar
 * support --search QUERY argument in view.py
 * make ssl verification optional (by fingerprint?)
 * write full text search indexing
