@@ -13,7 +13,7 @@ import logging
 # Logging level used for logging only to stderr
 # Set to logging.DEBUG to see URLs of REST requests.
 # Values: logging.DEBUG|logging.INFO|logging.ERROR
-loglevel = logging.DEBUG
+loglevel = logging.INFO
 # Logging level for error logger, logging to stderr and config.errorlog
 # Values: logging.WARNING|logging.ERROR|logging.CRITICAL
 errorloglevel = logging.WARNING

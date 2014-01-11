@@ -6,7 +6,7 @@ import common
 import config, lrparsing
 import searchqueryparser as sqp
 
-# Returns a list of documents matching the search criteria.
+# Returns a list of document ids matching the search criteria.
 # Raises lrparsing.ParseException on malformed query.
 # May return an empty list, but not None.
 def search(query, logger='none', verbose=False):

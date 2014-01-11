@@ -11,11 +11,11 @@ Special prerequisite: lrparsing module:
 TODO
 
 * support adding labels to mail by editing header with Labels: field
-* support --search QUERY argument in view.py
 * make ssl verification optional (by fingerprint?)
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
 * Add license conforming lrparsing.py license
+* nice -h command line args
 * Documentation
 
 * Contacts book

@@ -1,6 +1,7 @@
 #!/usr/bin/python
-# usage: ./view.py [--tmp FILE] [--changed FILE] [--upload] [--sent FILE] [--docs FILE]
+# usage: ./view.py [--tmp FILE] [--changed FILE] [--upload] [--sent FILE] [--docs FILE] [--search QUERY]
 #   --docs FILE    A file with the hashes of the documents to load
+#   --search QUERY Do a search and view all results. Asks, when there are more than 100 results.
 #   --tmp FILE     A temporary file used to save downloaded mails. Given to mutt with -f
 #                  An existing file with this name will be overwritten.
 #   --muttrc FILE  A file given to mutt with -F
@@ -12,6 +13,7 @@
 
 import sys, os, re, subprocess, traceback
 import common, logging
+import search, lrparsing
 import mailbox, hashlib
 
 import config
@@ -25,11 +27,12 @@ def hash_mails(box):
 
 def main():
   log = logging.getLogger('stderr')
-  elog = logging.getLogger('view')
+  elog = logging.getLogger('view') # error logger
   
   # here is the contents of the doc ids file saved,
   # if its given with --docs
   allhashes = ''
+  squery = None
   
   # load defaults
   muttrc = config.muttrc
@@ -59,9 +62,17 @@ def main():
       changedhashesfile = sys.argv[i]
     elif arg == '--upload':
       doupload = True
+    elif arg == '--search':
+      i+= 1
+      squery = sys.argv[i]
     else:
       common.fatal("Unknown arg %s"%arg)
     i += 1
+  
+  if squery and allhashes:
+    common.fatal("Arguments --docs and --search are exclusive!")
+  if not squery and not allhahses:
+    common.fatal("No documents given. Try --docs FILE or --search QUERY .")
   
   # open temporary mailbox
   if boxpath == None:
@@ -71,21 +82,37 @@ def main():
   # try to delete old temporary mailbox
   try: os.remove(boxpath)
   except OSError: pass
+  # open
   box = mailbox.mbox(boxpath)
   
   if muttrc: muttrc = '-F '+muttrc
   else: muttrc = ''
   
-  ids = []
-  # read hashes
-  re_id = re.compile('([0-9A-Fa-f]+)\s+')
-  for count, line in enumerate(allhashes.splitlines(True)):
-    mo = re_id.match(line)
-    if mo == None:
-      log.info("Ignoring line %d: %s" % (count+1, line))
-      continue
-    docid = mo.group(1)
-    ids.append(docid)
+  if allhashes:
+    ids = []
+    # read hashes
+    re_id = re.compile('([0-9A-Fa-f]+)\s+')
+    for count, line in enumerate(allhashes.splitlines(True)):
+      mo = re_id.match(line)
+      if mo == None:
+        log.info("Ignoring line %d: %s" % (count+1, line))
+        continue
+      docid = mo.group(1)
+      ids.append(docid)
+  if squery:
+    try:
+      ids = search.search(squery, 'stderr')
+    except lrparsing.ParseError:
+      common.fatal("Could not parse query:\n%s\n%s"%(squery, traceback.format_exc()))
+    except IOError:
+      common.fatal(traceback.format_exc())
+  if len(ids) == 0:
+    common.fatal("No documents found.")
+  if len(ids) > 100:
+    sys.stdout.write("Download %d mails? (y/n): "%len(ids))
+    resp = raw_input()
+    if resp.lower() != 'y' and resp.lower() != 'yes':
+      common.fatal("OK. Exit.")
   
   # download docs
   log.info("Downloading %d mails."%len(ids))
