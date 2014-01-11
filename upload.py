@@ -30,7 +30,10 @@ def parsemail(mail, logger='none'):
   data = { 'type': 'mail' }
   
   # parse mail
-  message = email.parser.Parser().parsestr(mail)
+  try:
+    message = email.parser.Parser().parsestr(mail)
+  except UnicodeEncodeError:
+    message = email.parser.Parser().parsestr(mail.encode('latin_1'))
   
   # test defects and try to save defect mails
   if len(message.defects) != 0:
@@ -79,7 +82,13 @@ def parsemail(mail, logger='none'):
   return data
 
 # Raises an IOError if something goes wrong.
-def upload(docid, metadata, mail=None, override=False, preserveread=True, logger='none', dontpreservesent=False):
+def upload(docid
+    , metadata
+    , mail=None
+    , override=False
+    , preserveread=True
+    , logger='none'
+    , preservesent=True):
   log = logging.getLogger(logger)
   # Retrieve rev if override is enabled
   oldrevision = ''
@@ -108,7 +117,7 @@ def upload(docid, metadata, mail=None, override=False, preserveread=True, logger
           metadata['labels'] = [x for x in metadata['labels'] if x != 'unread']
           if prelen != len(metadata['labels']): log.info("preserving label 'unread' (now not present)")
       # preserve sent flag
-      if dontpreservesent:
+      if preservesent:
         if 'sent' in oldmetad['labels']:
           # add 'sent' to labels list
           if 'sent' not in metadata['labels']:

@@ -3,3 +3,6 @@ FROM:/update.*@facebook.*/
 
 [spam]
 FROM:/info@twitter.com/
+
+[mailinglist]
+TO:/.*@juforum.de/
