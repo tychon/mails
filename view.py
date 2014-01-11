@@ -1,6 +1,6 @@
 #!/usr/bin/python
-# usage: ./view.py --tmp FILE [--changed FILE] [--upload] [--sent FILE]
-#   --hashes FILE  A file with the hashes of the documents to load
+# usage: ./view.py [--tmp FILE] [--changed FILE] [--upload] [--sent FILE] [--docs FILE]
+#   --docs FILE    A file with the hashes of the documents to load
 #   --tmp FILE     A temporary file used to save downloaded mails. Given to mutt with -f
 #                  An existing file with this name will be overwritten.
 #   --muttrc FILE  A file given to mutt with -F
@@ -27,8 +27,8 @@ def main():
   log = logging.getLogger('stderr')
   elog = logging.getLogger('view')
   
-  # here is the contents of the hashes file saved,
-  # if its given with --hashes
+  # here is the contents of the doc ids file saved,
+  # if its given with --docs
   allhashes = ''
   
   # load defaults
@@ -38,10 +38,11 @@ def main():
   changedhashesfile = None
   doupload = False
   
+  # load command line args
   i = 1
   while i < len(sys.argv):
     arg = sys.argv[i]
-    if arg == '--hashes':
+    if arg == '--docs':
       i += 1
       allhashes = open(sys.argv[i], 'r').read()
     elif arg == '--tmp':

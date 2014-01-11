@@ -9,12 +9,13 @@ logging.getLogger('none').addHandler(logging.NullHandler())
 logging.getLogger('none').propagate = False
 logging.getLogger('stderr').addHandler(logging.StreamHandler(sys.stderr))
 logging.getLogger('stderr').propagate = False
-logging.getLogger('stderr').setLevel(logging.INFO)
+logging.getLogger('stderr').setLevel(config.loglevel)
 # Configs for all other loggers:
 # For possible format strings see LogRecord attributes in logging module doc
 # You have to set the level to DEBUG to see any of the .info messages.
 logging.basicConfig(filename=config.errorlog, format='%(asctime)s %(levelname)s: %(message)s')
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stderr))
+logging.getLogger().setLevel(config.errorloglevel)
 # Called for uncaught exceptions
 def logexception(type, value, tb):
   msg = "Exception, possible loss of data!\n %s" % ' '.join(traceback.format_exception(type, value, tb, limit=100))

@@ -10,7 +10,6 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
-* set logging level and default logger in config
 * support adding labels to mail by editing header with Labels: field
 * support --search QUERY argument in view.py
 * make ssl verification optional (by fingerprint?)
