@@ -63,3 +63,13 @@ temp_mailbox = 'tmpbox'
 # Values: FILE|None
 sent_mailbox = None
 
+## Replication
+# only for one shot replication.
+# You have to setup continuous replication yourself.
+# Try example.com:5984/_utils/replicator.html
+
+# replicatE not replicatOR
+replicate_url = 'http://localhost:5984/_replicate'
+# URL of remote CouchDB. Include BasicAuth here.
+remotedb_url = 'http://postfix:RmefEQMv73SM5Ua4S55c@10.9.8.1:5984/mail/'
+

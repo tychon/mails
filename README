@@ -10,6 +10,7 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
+* replication
 * support adding labels to mail by editing header with Labels: field
 * make ssl verification optional (by fingerprint?)
 * write full text search indexing
@@ -163,7 +164,7 @@ A label is added, if every rule in a section matched the metadata.
 To achieve a OR conjunction create multiple sections for the same label as seen
 above.
 
-If you want to check a config file for sanity, do:
+If you want to check a autolabelling config file for sanity, do:
 
 $ python
 > import labels
