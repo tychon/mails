@@ -20,10 +20,10 @@ def search(query, logger='none', verbose=False):
     if name == 'VIEW':
       _, res = common.get_view(tok, "line %d col %d: Could not GET view."%(line, col), logger)
     elif name == 'SINCE':
-      _, res = common.get_view('date?startkey="%s"'%tok
+      _, res = common.get_view('date?startkey="%s"'%tok.replace('_', ' ')
                    , "line %d col %d: Could not GET view."%(line, col), logger)
     elif name == 'BEFORE':
-      _, res = common.get_view('date?endkey="%s\u9999"'%tok
+      _, res = common.get_view('date?endkey="%s\u9999"'%tok.replace('_', ' ')
                    , "line %d col %d: Could not GET view."%(line, col), logger)
     else:
       _, res = common.get_view('%s?startkey="%s"&endkey="%s\u9999"'
