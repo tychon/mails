@@ -19,11 +19,17 @@ def search(query, logger='none', verbose=False):
     tok = tok.lower()
     if name == 'VIEW':
       _, res = common.get_view(tok, "line %d col %d: Could not GET view."%(line, col), logger)
-      res = common.uniquify(res)
+    elif name == 'SINCE':
+      _, res = common.get_view('date?startkey="%s"'%tok
+                   , "line %d col %d: Could not GET view."%(line, col), logger)
+    elif name == 'BEFORE':
+      _, res = common.get_view('date?endkey="%s\u9999"'%tok
+                   , "line %d col %d: Could not GET view."%(line, col), logger)
     else:
       _, res = common.get_view('%s?startkey="%s"&endkey="%s\u9999"'
                      %(name.lower(), tok, tok)
                    , "line %d col %d: Could not GET view."%(line, col), logger)
+    res = common.uniquify(res)
     if verbose:
       for row in res: print '   ',row
     if len(res) == 0: log.info("%s %s (no results)", name, tok)

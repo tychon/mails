@@ -10,14 +10,16 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
-* replication
+* remove sent labelling mechanism. simply add sent labels based on FROM
+
+* use changes API for notifications
 * support adding labels to mail by editing header with Labels: field
-* make ssl verification optional (by fingerprint?)
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
 * Add license conforming lrparsing.py license
 * nice -h command line args
 * Documentation
+* Write User guide (mostly for myself :-D)
 
 * Contacts book
   For decoding display names see:
