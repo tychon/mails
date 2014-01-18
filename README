@@ -10,6 +10,7 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
+* view.py make upload sent mails optional and undefault
 * split config files for easier merging on different systems
 * use changes API for notifications
 * support adding labels to mail by editing header with Labels: field
