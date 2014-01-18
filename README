@@ -171,8 +171,10 @@ If you want to check a autolabelling config file for sanity, do:
 $ python
 > import labels
 > l = labels.Labeller('PATH')
-> l.check({'from':'john.doe@example.com', 'to':'mark.twain@gmx.com', 'date':'2004-06-30 00:03:57'})
+> print l.check({'from':['john.doe@example.com'], 'to':['mark.twain@gmx.com'], 'date':'2004-06-30 00:03:57'})
 
+There you can also check, if your rules work. The result should be an array
+containing the labels.
 
 ##############
 Python Logging

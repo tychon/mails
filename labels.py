@@ -55,6 +55,7 @@ class Labeller:
       if not date: return False
       if regex.match(date): return True
       else: return False
+    else: Exception("Your grammar is fucked up!")
   
   # Adds labels to metadata['labels']
   def check(self, metadata):
@@ -66,5 +67,7 @@ class Labeller:
           allrulesmatched = False
           break
       if allrulesmatched: labels.append(section['name'])
-    metadata['labels'] = common.uniquify(labels)
+    labels = common.uniquify(labels)
+    metadata['labels'] = labels
+    return labels
 
