@@ -71,7 +71,7 @@ def main():
   
   if squery and allhashes:
     common.fatal("Arguments --docs and --search are exclusive!")
-  if not squery and not allhahses:
+  if not squery and not allhashes:
     common.fatal("No documents given. Try --docs FILE or --search QUERY .")
   
   # open temporary mailbox
