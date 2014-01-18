@@ -22,7 +22,7 @@ def main():
   for key in box.iterkeys():
     process = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True)
     process.communicate(box.get_string(key))
-    log.info("For mail %d\n%s\nreturned with code %d" % (key, cmd, process.wait()))
+    log.info("For mail %s\n%s\nreturned with code %d" % (key, cmd, process.wait()))
   
   logging.shutdown()
   sys.exit(0)
