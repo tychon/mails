@@ -46,12 +46,14 @@ Most of the executable scripts are also modules you can include.
 * search
   Search for mail hashes by metadata.
 * download
-  Download mails with given hashes
+  Download mails with given hashes.
 * read
-  Execute a command for every file in a mbox / Maildir
+  Execute a command for every file in a mbox / Maildir.
 * view
   Start mutt for local mailbox and upload metadata of changed mails when mutt
   closed.
+* delete
+  Delete documents with given hashes.
 * conflict
   Solve conflicts by selecting one winner basing on metadata.
 * reprocess

@@ -21,7 +21,7 @@ import subprocess
 
 import config
 
-def download(docid=None, box=None, cmd=None, stream=None, logger='none'):
+def download(docid, box=None, cmd=None, stream=None, logger='none'):
   log = logging.getLogger(logger)
   mail = common.get_doc(docid+'/mail', logger=logger, parsejson=False)
   if cmd != None:

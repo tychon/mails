@@ -24,7 +24,7 @@ errorloglevel = logging.WARNING
 # Be sure this directory exists and is writable!
 # '~' expansion allowed
 # Value: DIRPATH
-backupdir = '~/.mail_backup/'
+backupdir = '~/mail_backup/'
 
 # URL to your mail database
 # SSL is supported, but certificates are not verified.
