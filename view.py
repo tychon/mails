@@ -184,7 +184,6 @@ def main():
       try:
         mail = box.get_string(key)
         mdata = upload.parsemail(mail, logger='stderr')
-        mdata['labels'].append('sent')
         doc_id = upload.hash_mail(mail)
         upload.upload(doc_id, mdata, mail, logger='stderr')
       except:

@@ -10,8 +10,6 @@ Special prerequisite: lrparsing module:
 ####
 TODO
 
-* remove sent labelling mechanism. simply add sent labels based on FROM
-
 * use changes API for notifications
 * support adding labels to mail by editing header with Labels: field
 * write full text search indexing

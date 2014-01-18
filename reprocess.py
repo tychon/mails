@@ -2,7 +2,6 @@
 # options:
 # --docs FILE
 # --nopres_unread
-# --nopres_sent
 
 #TODO option --verbose to print output of upload.pasemail and other stuff
 # instead of only dots
@@ -46,8 +45,7 @@ def main():
     
     if doc != newdoc:
       upload.upload(docid, newdoc, override=True
-          , preserveread=('--nopres_unread' not in sys.argv)
-          , preservesent=('--nopres_sent' not in sys.argv))
+          , preserveread=('--nopres_unread' not in sys.argv))
     sys.stdout.flush()
   
   logging.shutdown()

@@ -82,13 +82,24 @@ def parsemail(mail, logger='none'):
   return data
 
 # Raises an IOError if something goes wrong.
+## Overriding
+# When override is true and the document exists, only the metadata is updated
+# When override is true and the document does not exist, metada and the original
+#   mail is uploaded.
+# When override is false, mail must be the original message and metadat and
+#   the original mail is uploaded.
+## Preserving 'unread' label
+# The special label unread cannot be infered from the original message.
+# So on default the old state (present / not present) is preserved when overriding.
+# Supply preserveread=False to turn this behaviour off. Then the unread state
+# in the given metadata will not be touched.
+# This whole mechanism works only when overriding.
 def upload(docid
     , metadata
     , mail=None
     , override=False
     , preserveread=True
-    , logger='none'
-    , preservesent=True):
+    , logger='none'):
   log = logging.getLogger(logger)
   # Retrieve rev if override is enabled
   oldrevision = ''
@@ -116,18 +127,6 @@ def upload(docid
           prelen = len(metadata['labels'])
           metadata['labels'] = [x for x in metadata['labels'] if x != 'unread']
           if prelen != len(metadata['labels']): log.info("preserving label 'unread' (now not present)")
-      # preserve sent flag
-      if preservesent:
-        if 'sent' in oldmetad['labels']:
-          # add 'sent' to labels list
-          if 'sent' not in metadata['labels']:
-            metadata['labels'].append('sent')
-            log.info("preserving label 'sent' (now present)")
-            if prelen != len(metadata['labels']): log.info("preserving label 'sent' (now not present)")
-        else:
-          # remove 'sent' from labels list
-          prelen = len(metadata['labels'])
-          metadata['labels'] = [x for x in metadata['labels'] if x != 'sent']
     else: override=False
   
   if mail == None and override == False:
