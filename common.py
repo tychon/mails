@@ -44,6 +44,22 @@ def uniquify(seq):
   seen_add = seen.add
   return [ x for x in seq if x not in seen and not seen_add(x)]
 
+# Test mail metadata for equality: .type .date .from .to .labels
+# Requires all fields to be present
+def eq_mail_meta(doca, docb):
+  def eq(field, fun):
+    if field in doca and field in docb:
+      return fun(doca[field], docb[field])
+    if field not in doca and field not in docb:
+      return True
+    return False
+  if (not eq('type', str.__eq__) or
+      not eq('date', str.__eq__) or
+      not eq('from', list.__eq__) or
+      not eq('to', list.__eq__) or
+      not eq('labels', list.__eq__)): return False
+  else: return True
+
 #################
 # requests helper
 

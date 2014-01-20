@@ -154,7 +154,41 @@ def main():
   changed = filter(lambda pair: pair[1] != pair[2], zip(ids, hashes_before, hashes_after))
   # get (mbox key, docid) only
   changed = map(lambda pair: (pair[1][0], pair[0]), changed)
-  log.info("%d mails changed."%len(changed))
+  log.info("Raw data of %d mails changed."%len(changed))
+  # changed is now a list of tuples of (mbox key, docid)
+  
+  if verbose: uploadlogger = 'stderr'
+  else: uploadlogger = 'none'
+  
+  olddocs = []
+  changeddocs = []
+  metachanged = []
+  metachangeddocs = []
+  # check real changes in metadata
+  if changedhashesfile or doupload:
+    # parse changed mails
+    for key, docid in changed:
+      if not changedhashesfile: sys.stdout.write('.')
+      try:
+        changeddocs.append(upload.parsemail(box.get_string(key), logger=uploadlogger))
+      except:
+        elog.error("Exception while parsing mail:\n %s" % traceback.format_exc())
+        upload.save_mail(docid, box.get_string(key))
+        logging.shutdown()
+        sys.exit(1)
+      if not changedhashesfile: sys.stdout.flush()
+    if not changedhashesfile: sys.stdout.write('\n')
+    # download old docs
+    for _, docid in changed:
+      try: olddocs.append(common.get_doc(docid, "Could not get doc.", uploadlogger))
+      except IOError: common.fatal(traceback.format_exc())
+    # compare docs
+    for chan, changd, oldd in zip(changed, changeddocs, olddocs):
+      if not common.eq_mail_meta(changd, oldd):
+        metachanged.append(chan)
+        metachangeddocs.append(changd)
+    log.info("Metadata of %d mails changed."%len(metachanged))
+    changed = metachanged
   
   # write changed mails file
   if changedhashesfile:
@@ -164,22 +198,22 @@ def main():
       f.write('\n')
     f.close()
   
-  if verbose: uploadlogger = 'stderr'
-  else: uploadlogger = 'none'
-  
   # upload changed mails
   if doupload:
     # TODO ask for upload?
     log.info("Uploading %d mails"%len(changed))
-    for key, docid in changed:
+    for (key, docid), mdata in zip(changed, metachangeddocs):
+      if not changedhashesfile: sys.stdout.write('.')
       try:
-        mdata = upload.parsemail(box.get_string(key), logger=uploadlogger)
+        #FIXME
         upload.upload(docid, mdata, override=True, preserveread=False, logger=uploadlogger)
       except:
         elog.error("Exception while parsing or uploading mail:\n %s" % traceback.format_exc())
         upload.save_mail(docid, box.get_string(key))
         logging.shutdown()
         sys.exit(1)
+      if not changedhashesfile: sys.stdout.flush()
+    if not changedhashesfile: sys.stdout.write('\n')
   box.close()
   
   # upload sent mails
