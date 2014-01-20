@@ -1,1 +1,31 @@
-{"_id":"_design/post","_rev":"69-0eb556209c718ea6e11c8255f98a5943","language":"javascript","views":{"to":{"map":"function(doc) {\n  if (doc.type !== 'mail' || !doc.to) return;\n  // emit one result per address\n  for (var i = 0; i < doc.to.length; i++) {\n    emit(doc.to[i]);\n  }\n}"},"label":{"map":"function(doc) {\n  if (doc.type !== 'mail' || !doc.labels) return;\n  for (var i = 0; i < doc.labels.length; i++) {\n    emit(doc.labels[i]);\n  }\n}"},"from":{"map":"function(doc) {\n  if (doc.type !== 'mail' || !doc.from) return;\n  // emit one result per address\n  for (var i = 0; i < doc.from.length; i++) {\n    emit(doc.from[i]);\n  }\n}"},"labels_list":{"map":"function(doc) {\n  emit(doc._id, doc.labels);\n}","reduce":"function(key, values, rereduce) {\n  var result = [];\n  for (var i = 0; i < values.length; i++) {\n    for (var j = 0; j < values[i].length; j++) {\n      // for every value values[i][j]\n      var found = false;\n      for (var k = 0; k < result.length; k++) {\n        if (result[k] === values[i][j]) {\n          found = true;\n          break;\n        }\n      }\n      if (! found) result.push(values[i][j]);\n    }\n  }\n  return result;\n}"},"date":{"map":"function(doc) {\n  if (doc.type === 'mail' && doc.date)\n    emit(doc.date);\n}"},"conflicts":{"map":"function(doc) {\n  if (doc.type === 'mail' && doc._conflicts)\n    emit(doc._id, doc._conflicts);\n}"},"all_mails":{"map":"function(doc) {\n  if (doc.type === 'mail') emit();\n}"}}}
+{
+  "_id": "_design/post",
+  "language": "javascript",
+  "views": {
+    "to": {
+      "map": "function(doc) {\n  if (doc.type !== 'mail' || !doc.to) return;\n  // emit one result per address\n  for (var i = 0; i < doc.to.length; i++) {\n    emit(doc.to[i]);\n  }\n}"
+    },
+    "label": {
+      "map": "function(doc) {\n  if (doc.type !== 'mail' || !doc.labels) return;\n  for (var i = 0; i < doc.labels.length; i++) {\n    emit(doc.labels[i]);\n  }\n}"
+    },
+    "from": {
+      "map": "function(doc) {\n  if (doc.type !== 'mail' || !doc.from) return;\n  // emit one result per address\n  for (var i = 0; i < doc.from.length; i++) {\n    emit(doc.from[i]);\n  }\n}"
+    },
+    "labels_list": {
+      "map": "function(doc) {\n  emit(doc._id, doc.labels);\n}",
+      "reduce": "function(key, values, rereduce) {\n  var result = [];\n  for (var i = 0; i < values.length; i++) {\n    for (var j = 0; j < values[i].length; j++) {\n      // for every value values[i][j]\n      var found = false;\n      for (var k = 0; k < result.length; k++) {\n        if (result[k] === values[i][j]) {\n          found = true;\n          break;\n        }\n      }\n      if (! found) result.push(values[i][j]);\n    }\n  }\n  return result;\n}"
+    },
+    "date": {
+      "map": "function(doc) {\n  if (doc.type === 'mail' && doc.date)\n    emit(doc.date);\n}"
+    },
+    "conflicts": {
+      "map": "function(doc) {\n  if (doc.type === 'mail' && doc._conflicts)\n    emit(doc._id, doc._conflicts);\n}"
+    },
+    "all_mails": {
+      "map": "function(doc) {\n  if (doc.type === 'mail') emit();\n}"
+    },
+    "inbox": {
+      "map": "function(doc) {\n  if (doc.type != \"mail\" || ! doc.labels) return\n  if (doc.labels.indexOf(\"unread\") > -1\n   && doc.labels.indexOf(\"spam\") == -1\n   && doc.labels.indexOf(\"sent\") == -1) emit()\n}"
+    }
+  }
+}
