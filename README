@@ -17,6 +17,7 @@ TODO
 * write full text search indexing
 * Add GPG signed and encrypted to autolabelling
 * Add license conforming lrparsing.py license
+* use '#!/usr/bin/env python' as shebang
 * nice -h command line args
 * Documentation
 * Write User guide (mostly for myself :-D)
@@ -54,6 +55,9 @@ Most of the executable scripts are also modules you can include.
 * view
   Start mutt for local mailbox and upload metadata of changed mails when mutt
   closed.
+* changes
+  Listen to _changes API and execute commands on new mail.
+  Or setup continuous replication with --setup-continuous
 * delete
   Delete documents with given hashes.
 * conflict
