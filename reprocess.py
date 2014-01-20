@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # options:
+# --verbose Print more output to stderr, try config.loglevel too!
 # --docs FILE
 # If none of the following options is given, the unread status is preserved
 # as in the database and the only information NOT overwritten.
