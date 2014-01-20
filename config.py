@@ -30,7 +30,7 @@ backupdir = '~/mail_backup/'
 # SSL is supported, but certificates are not verified.
 # Don't forget a trailing slash.
 # Value: URL
-couchdb_url = 'http://localhost:5984/mail/'
+couchdb_url = 'http://localhost:5984/mailtest/'
 
 # The the document id of your design document with the views for searching.
 # Don't forget a trailing slash.
