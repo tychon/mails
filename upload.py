@@ -81,6 +81,41 @@ def parsemail(mail, logger='none'):
   
   return data
 
+# Raises TypeError when unknown mode is given.
+def preserve_unread(doc, mode='preserve', olddoc=None, logger='none'):
+  if 'type' not in doc or doc['type'] != 'mail' or 'labels' not in doc:
+    return None
+  
+  log = logging.getLogger(logger)
+  if mode == 'read':
+    # remove 'unread' from list
+    if 'unread' in doc['labels']:
+      prelen = len(doc['labels'])
+      doc['labels'] = [x for x in doc['labels'] if x != 'unread']
+      if prelen != len(doc['labels']):
+        log.info("unsetting label 'unread' (now not present)")
+  elif mode == 'unread':
+    # add 'unread' to labels list
+    if 'unread' not in doc['labels']:
+      metadata['labels'].append('unread')
+      log.info("setting label 'unread' (now present)")
+  elif mode == 'preserve':
+    # preserve unread status
+    if 'unread' in olddoc['labels']:
+      # add 'unread' to labels list
+      if 'unread' not in doc['labels']:
+        doc['labels'].append('unread')
+        log.info("preserving label 'unread' (now present)")
+    else:
+      # remove 'unread' from labels list
+      prelen = len(doc['labels'])
+      doc['labels'] = [x for x in doc['labels'] if x != 'unread']
+      if prelen != len(doc['labels']):
+        log.info("preserving label 'unread' (now not present)")
+  else: raise TypeError("Unknown preserve mode: %s"%mode)
+  return doc
+    
+
 # Raises an IOError if something goes wrong.
 ## Overriding
 # When override is true and the document exists, only the metadata is updated
@@ -115,18 +150,7 @@ def upload(docid
       # preserve attachment
       oldmetad = json.loads(r.text)
       metadata['_attachments'] = oldmetad['_attachments']
-      if preserveread:
-        # preserve unread status
-        if 'unread' in oldmetad['labels']:
-          # add 'unread' to labels list
-          if 'unread' not in metadata['labels']:
-            metadata['labels'].append('unread')
-            log.info("preserving label 'unread' (now present)")
-        else:
-          # remove 'unread' from labels list
-          prelen = len(metadata['labels'])
-          metadata['labels'] = [x for x in metadata['labels'] if x != 'unread']
-          if prelen != len(metadata['labels']): log.info("preserving label 'unread' (now not present)")
+      if preserveread: preserve_unread(metadata, 'preserve', oldmetad, logger)
     else: override=False
   
   if mail == None and override == False:
