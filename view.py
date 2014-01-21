@@ -6,11 +6,11 @@
 #   --tmp FILE     A temporary file used to save downloaded mails. Given to mutt with -f
 #                  An existing file with this name will be overwritten.
 #   --muttrc FILE  A file given to mutt with -F
-#   --sent FILE    A mbox used by mutt to save sent mails (muttrc: set record="$HOME/Mail/sent";)
+#   --sent         Upload sent mail
+#                  A mbox used by mutt to save sent mails (muttrc: set record="$HOME/Mail/sent";)
 #                  The mails are uploaded to database independent of --changed and --upload
 #   --changed FILE A File to save changed hashes to (one hash per line)
 #   --upload       Upload changed mail (Overriding mail metadata in database including 'read' label)
-#   --sent         Upload sent mail
 # Mutt breaks, if you give some stdin to this script.
 
 import sys, os, re, subprocess, traceback
@@ -60,9 +60,6 @@ def main():
     elif arg == '--muttrc':
       i += 1
       muttrc = sys.argv[i]
-    elif arg == '--sent':
-      i += 1
-      sentpath = sys.argv[i]
     elif arg == '--changed':
       i += 1
       changedhashesfile = sys.argv[i]
@@ -166,6 +163,7 @@ def main():
   metachangeddocs = []
   # check real changes in metadata
   if changedhashesfile or doupload:
+    log.info("Checking for meta changes ...")
     # parse changed mails
     for key, docid in changed:
       if not changedhashesfile: sys.stdout.write('.')
@@ -217,7 +215,7 @@ def main():
   box.close()
   
   # upload sent mails
-  if uploadsent and  sentpath:
+  if uploadsent and sentpath:
     # open mailbox
     sentpath = os.path.expanduser(sentpath)
     log.debug("Opening sent mailbox: %s"%sentpath)
