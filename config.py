@@ -63,6 +63,18 @@ temp_mailbox = 'tmpbox'
 # Values: FILE|None
 sent_mailbox = None
 
+## Changes, viewed by changed.py
+# {docid} will be replaced by the document id
+
+# Shell command executed on new mail only
+new_mail_cmd = 'mplayer -really-quiet 106807_19258-lq.ogg'
+# Shell command executed when mail existing mail changed
+# Since we upload an attachment to the document, this command is
+# executed directly after new_mail_cmd too (unless some error occurs)!
+changed_mail_cmd = 'echo {docid}'
+# Shell command executed when mail was deleted
+deleted_mail_cmd = 'mplayer -really-quiet 72865_7037-lq.ogg'
+
 ## Replication
 # only for one shot replication.
 # You have to setup continuous replication yourself.
