@@ -87,5 +87,7 @@ replicator_url = 'http://localhost:5984/_replicator'
 # used for one shot replication
 replicate_url = 'http://localhost:5984/_replicate'
 # URL of remote CouchDB. Include BasicAuth here.
-remotedb_url = 'http://postfix:RmefEQMv73SM5Ua4S55c@10.9.8.1:5984/mail/'
+# Send in plaintext, use encrypted connection!
+#remotedb_url = 'http://username:password@10.9.8.1:5984/mail/'
+remotedb_url = 'http://example.com:5984/mail/'
 
