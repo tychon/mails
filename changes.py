@@ -31,6 +31,7 @@ def setup_continuous_sync(logger='stderr'):
     raise IOError("Could not replicate LOCAL -> REMOTE: %d\n  %s\n%s"%(r.status_code, r.url, r.text))
   
   # do REMOTE -> LOCAL
+  log.info("Initiating REMOTE -> LOCAL ...")
   repldata = {
     'source': config.remotedb_url
   , 'target': config.couchdb_url
@@ -63,6 +64,7 @@ def one_shot_sync(logger='stderr'):
     raise IOError("Could not replicate LOCAL -> REMOTE: %d\n  %s\n%s"%(r.status_code, r.url, r.text))
   
   # do REMOTE -> LOCAL
+  log.info("Replicating REMOTE -> LOCAL ...")
   repldata = {
     'source': config.remotedb_url
   , 'target': config.couchdb_url

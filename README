@@ -6,6 +6,11 @@ Special prerequisite: lrparsing module:
     https://pypi.python.org/pypi/lrparsing
     http://ace-host.stuart.id.au/russell/files/lrparsing/doc/html/
 
+You can organize your configurations on diferent systems by creating
+branches for every host / user. Then you can pull in changes and propagate
+diffs easily by cherry-picking commits.
+But be aware, that your passwords are in the configs!
+You sould never commit them :-D (like i did accidentally).
 
 ####
 TODO
