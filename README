@@ -11,6 +11,9 @@ branches for every host / user. Then you can pull in changes and propagate
 diffs easily by cherry-picking commits.
 But be aware, that your passwords are in the configs!
 You sould never commit them :-D (like i did accidentally).
+For this reason in the .gitignore is config_passwd.py
+Do 'from config_passwd import *' at the end of your config.py
+and then put 'couchdb_auth=...' into config_passwd.py
 
 ####
 TODO
